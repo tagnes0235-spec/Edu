@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>생기부 분석 모임 협업 보드</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Malgun Gothic', '맑은 고딕', -apple-system, sans-serif;
+    background-color: #DCE7F2;
+    min-height: 100vh;
+    padding: 24px;
+    color: #2c3e50;
+  }
+
+  /* ===== 비밀번호 잠금 화면 ===== */
+  .lock-screen {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: #DCE7F2;
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .lock-box {
+    background: white;
+    border-radius: 18px;
+    padding: 40px 36px;
+    box-shadow: 0 12px 40px rgba(70, 100, 140, 0.18);
+    width: 100%;
+    max-width: 380px;
+    text-align: center;
+  }
+  .lock-box .lock-icon { font-size: 40px; margin-bottom: 14px; }
+  .lock-box h2 { font-size: 19px; color: #34495e; margin-bottom: 8px; }
+  .lock-box p { font-size: 13px; color: #6c7a89; margin-bottom: 22px; line-height: 1.5; }
+  .lock-box input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #d0dae6;
+    border-radius: 10px;
+    font-size: 15px;
+    text-align: center;
+    background: #f7fafd;
+    margin-bottom: 12px;
+  }
+  .lock-box input:focus { outline: none; border-color: #5a8bbf; background: white; }
+  .lock-box button {
+    width: 100%;
+    padding: 12px;
+    background: #5a8bbf;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .lock-box button:hover { background: #4a7aae; }
+  .lock-error { color: #c0392b; font-size: 13px; margin-top: 10px; min-height: 18px; }
+
+  /* ===== 연결 상태 표시 ===== */
+  .conn-status {
+    position: fixed;
+    bottom: 16px; right: 16px;
+    background: white;
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    box-shadow: 0 2px 10px rgba(70, 100, 140, 0.15);
+    z-index: 500;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .conn-dot { width: 8px; height: 8px; border-radius: 50%; background: #aaa; }
+  .conn-dot.online { background: #4caf50; }
+  .conn-dot.offline { background: #e57373; }
+
+  header {
+    max-width: 1600px;
+    margin: 0 auto 24px;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(8px);
+    border-radius: 16px;
+    padding: 20px 28px;
+    box-shadow: 0 2px 12px rgba(70, 100, 140, 0.08);
+  }
+  h1 { font-size: 22px; color: #34495e; margin-bottom: 6px; font-weight: 700; }
+  .subtitle { font-size: 13px; color: #6c7a89; line-height: 1.5; }
+
+  .legend { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 10px; font-size: 11px; color: rgba(0,0,0,0.55); }
+  .legend-item { display: flex; align-items: center; gap: 4px; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+  .toolbar { max-width: 1600px; margin: 0 auto 24px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+
+  .btn {
+    padding: 10px 18px; border: none; border-radius: 10px;
+    font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: all 0.2s; background: white; color: #34495e;
+    box-shadow: 0 2px 6px rgba(70, 100, 140, 0.1);
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(70, 100, 140, 0.15); }
+  .btn-primary { background: #5a8bbf; color: white; }
+  .btn-primary:hover { background: #4a7aae; }
+
+  .filter-section {
+    margin-left: auto; display: flex; gap: 8px; align-items: center;
+    background: white; padding: 6px 12px; border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(70, 100, 140, 0.1);
+  }
+  .filter-section label { font-size: 13px; color: #6c7a89; font-weight: 600; }
+  .filter-section select { border: none; background: transparent; font-size: 14px; color: #34495e; cursor: pointer; padding: 4px 8px; font-weight: 600; }
+
+  .board { max-width: 1600px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 24px; }
+
+  .note-group { background: rgba(255, 255, 255, 0.35); border-radius: 18px; padding: 16px; border: 1px solid rgba(255, 255, 255, 0.6); }
+
+  .postit { border-radius: 12px; padding: 14px 16px; box-shadow: 0 4px 12px rgba(70, 100, 140, 0.13); position: relative; word-break: break-word; }
+  .postit.root { margin-bottom: 12px; padding: 18px; box-shadow: 0 6px 18px rgba(70, 100, 140, 0.18); min-height: 160px; }
+  .postit.comment { margin-bottom: 10px; font-size: 13px; }
+  .postit.reply { margin-left: 24px; position: relative; }
+  .postit.reply::before { content: ''; position: absolute; left: -16px; top: -10px; width: 12px; height: 24px; border-left: 2px dashed rgba(90, 139, 191, 0.4); border-bottom: 2px dashed rgba(90, 139, 191, 0.4); border-bottom-left-radius: 8px; }
+
+  .postit-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; gap: 8px; }
+  .postit-meta { font-size: 11px; color: rgba(0,0,0,0.55); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .postit.root .postit-meta { font-size: 12px; }
+  .postit-author { font-weight: 700; color: rgba(0,0,0,0.78); }
+  .postit-time { color: rgba(0,0,0,0.45); }
+  .postit-actions { display: flex; gap: 2px; }
+
+  .icon-btn { background: none; border: none; cursor: pointer; font-size: 13px; color: rgba(0,0,0,0.4); padding: 2px 5px; line-height: 1; border-radius: 4px; }
+  .icon-btn:hover { color: rgba(0,0,0,0.85); background: rgba(0,0,0,0.08); }
+
+  .note-category { display: inline-block; background: rgba(0,0,0,0.12); color: rgba(0,0,0,0.78); padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; margin-bottom: 10px; }
+
+  .comment-tag { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 8px; color: white; letter-spacing: 0.3px; white-space: nowrap; }
+  .tag-suggest { background: #7d9fc4; }
+  .tag-question { background: #c4a47d; }
+  .tag-concern { background: #c47d8a; }
+  .tag-interpret { background: #9b87b8; }
+  .tag-agree { background: #87b896; }
+
+  .postit-content { font-size: 14px; line-height: 1.6; color: rgba(0,0,0,0.85); white-space: pre-wrap; }
+  .postit.comment .postit-content { font-size: 13px; line-height: 1.55; }
+
+  .reply-to { font-size: 10px; color: rgba(0,0,0,0.5); background: rgba(0,0,0,0.06); padding: 2px 8px; border-radius: 6px; margin-bottom: 6px; display: inline-block; }
+
+  .postit-footer { display: flex; gap: 8px; margin-top: 8px; padding-top: 6px; border-top: 1px dashed rgba(0,0,0,0.12); }
+  .postit.root .postit-footer { margin-top: 12px; padding-top: 10px; }
+  .action-link { background: none; border: none; cursor: pointer; font-size: 11px; color: rgba(0,0,0,0.55); padding: 2px 4px; font-weight: 600; }
+  .action-link:hover { color: rgba(0,0,0,0.9); }
+
+  .add-comment-btn { width: 100%; background: rgba(255, 255, 255, 0.55); border: 1.5px dashed rgba(90, 139, 191, 0.5); border-radius: 10px; padding: 10px; cursor: pointer; color: #5a8bbf; font-size: 13px; font-weight: 600; margin-top: 6px; transition: all 0.15s; }
+  .add-comment-btn:hover { background: rgba(255, 255, 255, 0.8); border-color: #5a8bbf; border-style: solid; }
+
+  .comment-form-postit { border-radius: 12px; padding: 12px; margin-bottom: 10px; box-shadow: 0 4px 12px rgba(70, 100, 140, 0.15); border: 2px solid rgba(90, 139, 191, 0.4); }
+  .comment-form-postit.reply-form { margin-left: 24px; position: relative; }
+  .comment-form-postit.reply-form::before { content: ''; position: absolute; left: -16px; top: -10px; width: 12px; height: 24px; border-left: 2px dashed rgba(90, 139, 191, 0.4); border-bottom: 2px dashed rgba(90, 139, 191, 0.4); border-bottom-left-radius: 8px; }
+
+  .form-row-top { display: flex; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; align-items: center; }
+  .form-row-top input.author-input { flex: 1; min-width: 100px; border: 1px solid rgba(0,0,0,0.15); background: white; padding: 5px 8px; border-radius: 6px; font-size: 12px; font-family: inherit; }
+
+  .tag-selector { display: flex; gap: 3px; flex-wrap: wrap; }
+  .tag-btn { border: 1.5px solid transparent; background: rgba(255,255,255,0.85); padding: 3px 8px; border-radius: 8px; font-size: 10px; font-weight: 700; cursor: pointer; color: rgba(0,0,0,0.6); transition: all 0.15s; }
+  .tag-btn:hover { border-color: rgba(0,0,0,0.3); }
+  .tag-btn.active { color: white; }
+  .tag-btn.active[data-tag="suggest"] { background: #7d9fc4; border-color: #7d9fc4; }
+  .tag-btn.active[data-tag="question"] { background: #c4a47d; border-color: #c4a47d; }
+  .tag-btn.active[data-tag="concern"] { background: #c47d8a; border-color: #c47d8a; }
+  .tag-btn.active[data-tag="interpret"] { background: #9b87b8; border-color: #9b87b8; }
+  .tag-btn.active[data-tag="agree"] { background: #87b896; border-color: #87b896; }
+
+  .form-color-picker { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 8px; padding: 6px 8px; background: rgba(255, 255, 255, 0.5); border-radius: 8px; }
+  .form-color-picker-label { font-size: 10px; color: rgba(0,0,0,0.55); font-weight: 700; margin-right: 4px; align-self: center; }
+  .mini-color { width: 20px; height: 20px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: all 0.15s; }
+  .mini-color:hover { transform: scale(1.15); }
+  .mini-color.selected { border-color: #34495e; transform: scale(1.2); }
+
+  .comment-form-postit textarea { width: 100%; border: 1px solid rgba(0,0,0,0.15); background: white; padding: 8px 10px; border-radius: 6px; font-size: 13px; font-family: inherit; resize: vertical; min-height: 70px; line-height: 1.55; }
+  .comment-form-postit textarea:focus, .comment-form-postit input:focus { outline: none; border-color: rgba(90,139,191,0.6); }
+
+  .form-row-bottom { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; }
+  .form-hint { font-size: 10px; color: rgba(0,0,0,0.5); }
+  .form-buttons { display: flex; gap: 4px; }
+
+  .submit-btn { background: #5a8bbf; color: white; border: none; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; }
+  .submit-btn:hover { background: #4a7aae; }
+  .cancel-btn { background: transparent; color: rgba(0,0,0,0.55); border: none; padding: 6px 10px; cursor: pointer; font-size: 11px; font-weight: 600; }
+  .cancel-btn:hover { color: rgba(0,0,0,0.85); }
+
+  .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(40,60,90,0.4); backdrop-filter: blur(4px); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
+  .modal-overlay.active { display: flex; }
+  .modal { background: white; border-radius: 16px; padding: 28px; width: 100%; max-width: 520px; box-shadow: 0 12px 40px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
+  .modal h2 { font-size: 18px; margin-bottom: 18px; color: #34495e; }
+
+  .form-group { margin-bottom: 16px; }
+  .form-group label { display: block; font-size: 13px; color: #6c7a89; margin-bottom: 6px; font-weight: 600; }
+  .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 12px; border: 1px solid #d0dae6; border-radius: 8px; font-size: 14px; font-family: inherit; background: #f7fafd; }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #5a8bbf; background: white; }
+  .form-group textarea { min-height: 120px; resize: vertical; line-height: 1.6; }
+
+  .color-picker { display: flex; gap: 10px; flex-wrap: wrap; }
+  .color-option { width: 36px; height: 36px; border-radius: 50%; cursor: pointer; border: 3px solid transparent; transition: all 0.2s; }
+  .color-option:hover { transform: scale(1.1); }
+  .color-option.selected { border-color: #34495e; transform: scale(1.15); }
+
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 22px; }
+
+  .empty-state { grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: #6c7a89; background: rgba(255,255,255,0.5); border-radius: 16px; border: 2px dashed rgba(90,139,191,0.3); }
+  .empty-state h3 { font-size: 18px; margin-bottom: 8px; color: #5a8bbf; }
+
+  @media (max-width: 600px) {
+    body { padding: 16px; }
+    .board { grid-template-columns: 1fr; }
+    .toolbar { flex-direction: column; align-items: stretch; }
+    .filter-section { margin-left: 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== 비밀번호 잠금 화면 ===== -->
+<div class="lock-screen" id="lockScreen">
+  <div class="lock-box">
+    <div class="lock-icon">🔒</div>
+    <h2>생기부 분석 모임 보드</h2>
+    <p>모임 선생님들께 공유된<br>비밀번호를 입력해 주세요.</p>
+    <input type="password" id="passwordInput" placeholder="비밀번호" onkeydown="if(event.key==='Enter') checkPassword()">
+    <button onclick="checkPassword()">입장하기</button>
+    <div class="lock-error" id="lockError"></div>
+  </div>
+</div>
+
+<header>
+  <h1>📋 생기부 분석 모임 협업 보드</h1>
+  <p class="subtitle">학생 생기부를 미리 읽고 영역별 의견을 공유하는 공간입니다. 의견 하나하나가 독립된 포스트잇으로 붙습니다.</p>
+  <div class="legend">
+    <span class="legend-item"><span class="legend-dot" style="background:#7d9fc4"></span>보완 — 추가 자료·해석 제안</span>
+    <span class="legend-item"><span class="legend-dot" style="background:#c4a47d"></span>질문 — 모임에서 더 짚어볼 점</span>
+    <span class="legend-item"><span class="legend-dot" style="background:#c47d8a"></span>우려 — 점검·재검토 필요</span>
+    <span class="legend-item"><span class="legend-dot" style="background:#9b87b8"></span>해석 — 다른 관점·의미 부여</span>
+    <span class="legend-item"><span class="legend-dot" style="background:#87b896"></span>동의 — 공감·지지</span>
+  </div>
+</header>
+
+<div class="toolbar">
+  <button class="btn btn-primary" onclick="openModal()">＋ 새 메모 작성</button>
+  <div class="filter-section">
+    <label>영역 필터:</label>
+    <select id="filterCategory" onchange="renderBoard()">
+      <option value="all">전체</option>
+      <option value="자율활동">자율활동</option>
+      <option value="동아리활동">동아리활동</option>
+      <option value="진로활동">진로활동</option>
+      <option value="봉사활동">봉사활동</option>
+      <option value="교과세특">교과세특</option>
+      <option value="독서활동">독서활동</option>
+      <option value="행동특성">행동특성 및 종합의견</option>
+      <option value="기타">기타</option>
+    </select>
+  </div>
+</div>
+
+<div class="board" id="board"></div>
+
+<div class="conn-status" id="connStatus">
+  <span class="conn-dot" id="connDot"></span>
+  <span id="connText">연결 중...</span>
+</div>
+
+<!-- 새 메모 작성 모달 -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <h2 id="modalTitle">새 메모 작성</h2>
+    <div class="form-group">
+      <label>작성자</label>
+      <input type="text" id="inputAuthor" placeholder="성함을 입력하세요 (예: 김ㅇㅇ 선생님)">
+    </div>
+    <div class="form-group">
+      <label>학생 / 영역</label>
+      <select id="inputCategory">
+        <option value="자율활동">자율활동</option>
+        <option value="동아리활동">동아리활동</option>
+        <option value="진로활동">진로활동</option>
+        <option value="봉사활동">봉사활동</option>
+        <option value="교과세특">교과세특</option>
+        <option value="독서활동">독서활동</option>
+        <option value="행동특성">행동특성 및 종합의견</option>
+        <option value="기타">기타</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>내용</label>
+      <textarea id="inputContent" placeholder="생기부를 읽고 발견한 점, 의견, 질문 등을 자유롭게 작성해주세요."></textarea>
+    </div>
+    <div class="form-group">
+      <label>포스트잇 색상</label>
+      <div class="color-picker" id="colorPicker"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">취소</button>
+      <button class="btn btn-primary" id="submitNoteBtn" onclick="submitNote()">작성하기</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Firebase SDK ===== -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getDatabase, ref, onValue, set, remove, update, child, get }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  /* ============================================================
+     ★★★ 여기 두 군데만 바꾸면 됩니다 ★★★
+     ------------------------------------------------------------
+     ① 아래 firebaseConfig 를 Firebase에서 복사한 내용으로 교체
+     ② BOARD_PASSWORD 를 원하는 공용 비밀번호로 교체
+     ============================================================ */
+
+  const firebaseConfig = {
+    apiKey: "여기에_복사한_apiKey",
+    authDomain: "여기에_복사한_authDomain",
+    databaseURL: "여기에_복사한_databaseURL",
+    projectId: "여기에_복사한_projectId",
+    storageBucket: "여기에_복사한_storageBucket",
+    messagingSenderId: "여기에_복사한_messagingSenderId",
+    appId: "여기에_복사한_appId"
+  };
+
+  const BOARD_PASSWORD = "ys2026";
+
+  /* ============================================================
+     아래부터는 수정할 필요 없습니다.
+     ============================================================ */
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  const notesRef = ref(db, 'notes');
+
+  // 상수
+  const COLORS = ['#FFF4B8','#FFD6D6','#D4F0D4','#FFDAB8','#E0D4F0','#C8E6F0','#F5E1C8','#FFFFFF'];
+  const TAGS = {
+    suggest:   { label: '💡 보완',  class: 'tag-suggest' },
+    question:  { label: '🔍 질문',  class: 'tag-question' },
+    concern:   { label: '⚠️ 우려',  class: 'tag-concern' },
+    interpret: { label: '💬 해석',  class: 'tag-interpret' },
+    agree:     { label: '✅ 동의',  class: 'tag-agree' }
+  };
+
+  // 상태
+  let selectedColor = COLORS[0];
+  let notes = [];               // 화면용 배열 (Firebase 객체를 배열로 변환)
+  let editingNoteId = null;
+  let activeReplyTo = null;
+  let activeEditComment = null;
+  let activeAddComment = null;
+  let formState = {};
+
+  /* ---------- 비밀번호 잠금 ---------- */
+  window.checkPassword = function() {
+    const input = document.getElementById('passwordInput').value;
+    if (input === BOARD_PASSWORD) {
+      sessionStorage.setItem('board_unlocked', '1');
+      document.getElementById('lockScreen').style.display = 'none';
+    } else {
+      document.getElementById('lockError').textContent = '비밀번호가 올바르지 않습니다.';
+      document.getElementById('passwordInput').value = '';
+    }
+  };
+  // 세션 동안 재입력 생략
+  if (sessionStorage.getItem('board_unlocked') === '1') {
+    document.getElementById('lockScreen').style.display = 'none';
+  } else {
+    document.getElementById('passwordInput').focus();
+  }
+
+  /* ---------- Firebase 실시간 구독 ---------- */
+  onValue(notesRef, (snapshot) => {
+    const val = snapshot.val() || {};
+    // 객체 → 배열 변환, comments도 객체 → 배열
+    notes = Object.keys(val).map(noteId => {
+      const n = val[noteId];
+      const commentsObj = n.comments || {};
+      const comments = Object.keys(commentsObj).map(cid => ({
+        id: cid,
+        ...commentsObj[cid],
+        parentId: commentsObj[cid].parentId || null
+      }));
+      return { ...n, id: noteId, comments };
+    });
+    setConn(true);
+    renderBoard();
+  }, (error) => {
+    console.error(error);
+    setConn(false);
+  });
+
+  function setConn(online) {
+    const dot = document.getElementById('connDot');
+    const text = document.getElementById('connText');
+    if (online) { dot.className = 'conn-dot online'; text.textContent = '실시간 연결됨'; }
+    else { dot.className = 'conn-dot offline'; text.textContent = '연결 끊김 (새로고침 해보세요)'; }
+  }
+
+  /* ---------- 색상 선택기 (모달) ---------- */
+  function initColorPicker(currentColor) {
+    const picker = document.getElementById('colorPicker');
+    picker.innerHTML = '';
+    selectedColor = currentColor || COLORS[0];
+    COLORS.forEach(color => {
+      const div = document.createElement('div');
+      div.className = 'color-option' + (color === selectedColor ? ' selected' : '');
+      div.style.background = color;
+      div.onclick = () => {
+        document.querySelectorAll('#colorPicker .color-option').forEach(el => el.classList.remove('selected'));
+        div.classList.add('selected');
+        selectedColor = color;
+      };
+      picker.appendChild(div);
+    });
+  }
+
+  function captureFormInputs() {
+    document.querySelectorAll('[data-form-id]').forEach(form => {
+      const formId = form.dataset.formId;
+      if (!formState[formId]) formState[formId] = {};
+      form.querySelectorAll('input[data-field], textarea[data-field]').forEach(el => {
+        formState[formId][el.dataset.field] = el.value;
+      });
+    });
+  }
+
+  /* ---------- 렌더링 ---------- */
+  function renderBoard() {
+    captureFormInputs();
+    const board = document.getElementById('board');
+    const filter = document.getElementById('filterCategory').value;
+    const filtered = filter === 'all' ? notes : notes.filter(n => n.category === filter);
+
+    if (filtered.length === 0) {
+      board.innerHTML = `
+        <div class="empty-state">
+          <h3>아직 작성된 메모가 없습니다</h3>
+          <p>＋ 새 메모 작성 버튼을 눌러 첫 의견을 남겨보세요.</p>
+        </div>`;
+      return;
+    }
+    const sorted = [...filtered].sort((a, b) => b.createdAt - a.createdAt);
+    board.innerHTML = sorted.map(note => renderNoteGroup(note)).join('');
+    bindFormListeners();
+  }
+
+  function renderNoteGroup(note) {
+    const topComments = (note.comments || []).filter(c => !c.parentId).sort((a,b)=>a.createdAt-b.createdAt);
+    const commentsHtml = topComments.map(c => renderCommentPostit(note.id, c, note.comments)).join('');
+    const showAddForm = activeAddComment === note.id;
+    const addCommentArea = showAddForm
+      ? renderCommentForm(note.id, null)
+      : `<button class="add-comment-btn" onclick="startAddComment('${note.id}')">＋ 의견 포스트잇 추가</button>`;
+    return `<div class="note-group">${renderRootPostit(note)}${commentsHtml}${addCommentArea}</div>`;
+  }
+
+  function renderRootPostit(note) {
+    return `
+      <div class="postit root" style="background: ${note.color}">
+        <div class="postit-header">
+          <div class="postit-meta">
+            <span class="postit-author">${escapeHtml(note.author || '익명')}</span>
+            <span class="postit-time">${formatDate(note.createdAt)}${note.editedAt ? ' (수정됨)' : ''}</span>
+          </div>
+          <div class="postit-actions">
+            <button class="icon-btn" onclick="editNote('${note.id}')" title="수정">✎</button>
+            <button class="icon-btn" onclick="deleteNote('${note.id}')" title="삭제">✕</button>
+          </div>
+        </div>
+        <div class="note-category">${escapeHtml(note.category)}</div>
+        <div class="postit-content">${escapeHtml(note.content)}</div>
+      </div>`;
+  }
+
+  function renderCommentPostit(noteId, comment, allComments) {
+    const isEditing = activeEditComment && activeEditComment.noteId === noteId && activeEditComment.commentId === comment.id;
+    const isReplyingHere = activeReplyTo && activeReplyTo.noteId === noteId && activeReplyTo.parentId === comment.id;
+    if (isEditing) return renderCommentForm(noteId, comment.parentId, comment);
+
+    const tag = TAGS[comment.tag] || TAGS.agree;
+    const replies = allComments.filter(c => c.parentId === comment.id).sort((a,b)=>a.createdAt-b.createdAt);
+
+    let replyToBadge = '';
+    if (comment.parentId) {
+      const parent = allComments.find(c => c.id === comment.parentId);
+      if (parent) replyToBadge = `<span class="reply-to">↳ ${escapeHtml(parent.author || '익명')} 의견에 답글</span>`;
+    }
+
+    return `
+      <div class="postit comment ${comment.parentId ? 'reply' : ''}" style="background: ${comment.color}">
+        <div class="postit-header">
+          <div class="postit-meta">
+            <span class="comment-tag ${tag.class}">${tag.label}</span>
+            <span class="postit-author">${escapeHtml(comment.author || '익명')}</span>
+            <span class="postit-time">${formatDate(comment.createdAt)}${comment.editedAt ? ' ·수정' : ''}</span>
+          </div>
+          <div class="postit-actions">
+            <button class="icon-btn" onclick="startEditComment('${noteId}', '${comment.id}')" title="수정">✎</button>
+            <button class="icon-btn" onclick="deleteComment('${noteId}', '${comment.id}')" title="삭제">✕</button>
+          </div>
+        </div>
+        ${replyToBadge}
+        <div class="postit-content">${escapeHtml(comment.text)}</div>
+        <div class="postit-footer">
+          <button class="action-link" onclick="startReply('${noteId}', '${comment.id}')">↳ 이 의견에 답글</button>
+        </div>
+      </div>
+      ${replies.map(r => renderCommentPostit(noteId, r, allComments)).join('')}
+      ${isReplyingHere ? renderCommentForm(noteId, comment.id) : ''}`;
+  }
+
+  function renderCommentForm(noteId, parentId, editingComment) {
+    const isEdit = !!editingComment;
+    const formId = isEdit ? `editform-${noteId}-${editingComment.id}` : `form-${noteId}-${parentId || 'root'}`;
+    const isReply = parentId !== null && parentId !== undefined;
+    const saved = formState[formId] || (isEdit
+      ? { author: editingComment.author, text: editingComment.text, tag: editingComment.tag, color: editingComment.color }
+      : {});
+    if (!saved.color) saved.color = COLORS[5];
+    if (!formState[formId]) formState[formId] = saved;
+
+    const colorOptions = COLORS.map(c => `
+      <div class="mini-color ${saved.color === c ? 'selected' : ''}" style="background: ${c}" onclick="selectFormColor('${formId}', '${c}')"></div>
+    `).join('');
+
+    return `
+      <div class="comment-form-postit ${isReply ? 'reply-form' : ''}" data-form-id="${formId}" style="background: ${saved.color}">
+        <div class="form-row-top">
+          <input class="author-input" type="text" placeholder="작성자명" data-field="author" value="${escapeHtml(saved.author || '')}">
+          <div class="tag-selector">
+            ${Object.entries(TAGS).map(([key, t]) => `
+              <button class="tag-btn ${saved.tag === key ? 'active' : ''}" data-tag="${key}" onclick="selectTag('${formId}', '${key}')">${t.label}</button>
+            `).join('')}
+          </div>
+        </div>
+        <div class="form-color-picker">
+          <span class="form-color-picker-label">색상</span>${colorOptions}
+        </div>
+        <textarea data-field="text" placeholder="${isEdit ? '' : (isReply ? '답글을 입력하세요...' : '의견을 입력하세요. 단순 동의보다 근거·예시·다른 시각을 함께 적어주세요.')}">${escapeHtml(saved.text || '')}</textarea>
+        <div class="form-row-bottom">
+          <span class="form-hint">${isEdit ? '수정 중' : '유형 태그와 색상을 선택해주세요'}</span>
+          <div class="form-buttons">
+            <button class="cancel-btn" onclick="${isEdit ? 'cancelEditComment()' : (isReply ? 'cancelReply()' : 'cancelAddComment()')}">취소</button>
+            <button class="submit-btn" onclick="${isEdit
+              ? `submitEditComment('${noteId}', '${editingComment.id}', '${formId}')`
+              : `submitComment('${noteId}', ${parentId ? `'${parentId}'` : 'null'}, '${formId}')`
+            }">${isEdit ? '수정 완료' : '등록'}</button>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  function bindFormListeners() {
+    document.querySelectorAll('[data-form-id]').forEach(form => {
+      const formId = form.dataset.formId;
+      form.querySelectorAll('input[data-field], textarea[data-field]').forEach(el => {
+        el.addEventListener('input', () => {
+          if (!formState[formId]) formState[formId] = {};
+          formState[formId][el.dataset.field] = el.value;
+        });
+      });
+    });
+  }
+
+  window.selectTag = function(formId, tag) {
+    captureFormInputs();
+    if (!formState[formId]) formState[formId] = {};
+    formState[formId].tag = tag;
+    const form = document.querySelector(`[data-form-id="${formId}"]`);
+    if (form) form.querySelectorAll('.tag-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.tag === tag));
+  };
+
+  window.selectFormColor = function(formId, color) {
+    captureFormInputs();
+    if (!formState[formId]) formState[formId] = {};
+    formState[formId].color = color;
+    const form = document.querySelector(`[data-form-id="${formId}"]`);
+    if (form) {
+      form.style.background = color;
+      form.querySelectorAll('.mini-color').forEach(el => el.classList.toggle('selected', el.style.background === colorToRgb(color)));
+    }
+  };
+
+  function colorToRgb(hex) {
+    const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+    return `rgb(${r}, ${g}, ${b})`;
+  }
+
+  window.startAddComment = function(noteId) { captureFormInputs(); activeAddComment = noteId; activeReplyTo = null; renderBoard(); };
+  window.cancelAddComment = function() { if (activeAddComment) delete formState[`form-${activeAddComment}-root`]; activeAddComment = null; renderBoard(); };
+  window.startReply = function(noteId, parentId) { captureFormInputs(); activeReplyTo = { noteId, parentId }; activeAddComment = null; renderBoard(); };
+  window.cancelReply = function() { if (activeReplyTo) delete formState[`form-${activeReplyTo.noteId}-${activeReplyTo.parentId || 'root'}`]; activeReplyTo = null; renderBoard(); };
+  window.startEditComment = function(noteId, commentId) { captureFormInputs(); activeEditComment = { noteId, commentId }; renderBoard(); };
+  window.cancelEditComment = function() { if (activeEditComment) delete formState[`editform-${activeEditComment.noteId}-${activeEditComment.commentId}`]; activeEditComment = null; renderBoard(); };
+
+  /* ---------- 의견(댓글) 저장 ---------- */
+  window.submitComment = function(noteId, parentId, formId) {
+    captureFormInputs();
+    const state = formState[formId] || {};
+    if (!state.text || !state.text.trim()) { alert('의견 내용을 입력해주세요.'); return; }
+    if (!state.tag) { alert('의견 유형 태그를 선택해주세요. (보완/질문/우려/해석/동의 중 하나)'); return; }
+    const commentId = 'c_' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
+    const commentData = {
+      author: (state.author || '').trim(),
+      text: state.text.trim(),
+      tag: state.tag,
+      color: state.color || COLORS[5],
+      parentId: parentId,
+      createdAt: Date.now()
+    };
+    set(ref(db, `notes/${noteId}/comments/${commentId}`), commentData);
+    delete formState[formId];
+    activeReplyTo = null; activeAddComment = null;
+  };
+
+  window.submitEditComment = function(noteId, commentId, formId) {
+    captureFormInputs();
+    const state = formState[formId] || {};
+    if (!state.text || !state.text.trim()) { alert('의견 내용을 입력해주세요.'); return; }
+    const updates = {
+      author: (state.author || '').trim(),
+      text: state.text.trim(),
+      editedAt: Date.now()
+    };
+    if (state.tag) updates.tag = state.tag;
+    if (state.color) updates.color = state.color;
+    update(ref(db, `notes/${noteId}/comments/${commentId}`), updates);
+    delete formState[formId];
+    activeEditComment = null;
+  };
+
+  window.deleteComment = async function(noteId, commentId) {
+    if (!confirm('이 의견 포스트잇을 삭제하시겠습니까? 답글도 함께 삭제됩니다.')) return;
+    // 자손 댓글까지 찾아서 삭제
+    const note = notes.find(n => n.id === noteId);
+    if (!note) return;
+    const toDelete = new Set([commentId]);
+    let changed = true;
+    while (changed) {
+      changed = false;
+      note.comments.forEach(c => {
+        if (c.parentId && toDelete.has(c.parentId) && !toDelete.has(c.id)) { toDelete.add(c.id); changed = true; }
+      });
+    }
+    for (const cid of toDelete) {
+      await remove(ref(db, `notes/${noteId}/comments/${cid}`));
+    }
+  };
+
+  /* ---------- 메모(루트) 저장 ---------- */
+  window.openModal = function() {
+    editingNoteId = null;
+    document.getElementById('modalTitle').textContent = '새 메모 작성';
+    document.getElementById('submitNoteBtn').textContent = '작성하기';
+    document.getElementById('inputAuthor').value = '';
+    document.getElementById('inputCategory').value = '자율활동';
+    document.getElementById('inputContent').value = '';
+    initColorPicker(COLORS[0]);
+    document.getElementById('modal').classList.add('active');
+  };
+
+  window.editNote = function(noteId) {
+    const note = notes.find(n => n.id === noteId);
+    if (!note) return;
+    editingNoteId = noteId;
+    document.getElementById('modalTitle').textContent = '메모 수정';
+    document.getElementById('submitNoteBtn').textContent = '수정 완료';
+    document.getElementById('inputAuthor').value = note.author || '';
+    document.getElementById('inputCategory').value = note.category;
+    document.getElementById('inputContent').value = note.content;
+    initColorPicker(note.color);
+    document.getElementById('modal').classList.add('active');
+  };
+
+  window.closeModal = function() { document.getElementById('modal').classList.remove('active'); editingNoteId = null; };
+
+  window.submitNote = function() {
+    const author = document.getElementById('inputAuthor').value.trim();
+    const category = document.getElementById('inputCategory').value;
+    const content = document.getElementById('inputContent').value.trim();
+    if (!content) { alert('내용을 입력해주세요.'); return; }
+
+    if (editingNoteId) {
+      update(ref(db, `notes/${editingNoteId}`), { author, category, content, color: selectedColor, editedAt: Date.now() });
+    } else {
+      const noteId = 'note_' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
+      set(ref(db, `notes/${noteId}`), {
+        author, category, content,
+        color: selectedColor,
+        createdAt: Date.now(),
+        comments: {}
+      });
+    }
+    closeModal();
+  };
+
+  window.deleteNote = function(id) {
+    if (!confirm('이 메모를 삭제하시겠습니까? 모든 의견 포스트잇도 함께 삭제됩니다.')) return;
+    remove(ref(db, `notes/${id}`));
+  };
+
+  window.renderBoard = renderBoard; // 필터 select에서 호출
+
+  /* ---------- 유틸 ---------- */
+  function escapeHtml(text) {
+    if (!text && text !== '') return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+  function formatDate(ts) {
+    const d = new Date(ts);
+    return `${d.getMonth()+1}/${d.getDate()} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+  }
+
+  document.getElementById('modal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
+</script>
+
+</body>
+</html>
