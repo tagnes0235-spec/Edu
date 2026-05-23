@@ -230,8 +230,8 @@
     <div class="lock-icon">🔒</div>
     <h2>생기부 분석 모임 보드</h2>
     <p>모임 선생님들께 공유된<br>비밀번호를 입력해 주세요.</p>
-    <input type="password" id="passwordInput" placeholder="비밀번호" onkeydown="if(event.key==='Enter') checkPassword()">
-    <button onclick="checkPassword()">입장하기</button>
+    <input type="password" id="passwordInput" placeholder="비밀번호">
+    <button id="enterBtn">입장하기</button>
     <div class="lock-error" id="lockError"></div>
   </div>
 </div>
@@ -323,13 +323,14 @@
      ============================================================ */
 
   const firebaseConfig = {
-    apiKey: "여기에_복사한_apiKey",
-    authDomain: "여기에_복사한_authDomain",
-    databaseURL: "여기에_복사한_databaseURL",
-    projectId: "여기에_복사한_projectId",
-    storageBucket: "여기에_복사한_storageBucket",
-    messagingSenderId: "여기에_복사한_messagingSenderId",
-    appId: "여기에_복사한_appId"
+    apiKey: "AIzaSyBtgUL85OIEYat20W8wGideuf8ln1pLrrE",
+    authDomain: "edu-92632.firebaseapp.com",
+    databaseURL: "https://edu-92632-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "edu-92632",
+    storageBucket: "edu-92632.firebasestorage.app",
+    messagingSenderId: "897016569304",
+    appId: "1:897016569304:web:772fe75213421962c9e6ad",
+    measurementId: "G-7YX0GQ6WPC"
   };
 
   const BOARD_PASSWORD = "ys2026";
@@ -362,7 +363,7 @@
   let formState = {};
 
   /* ---------- 비밀번호 잠금 ---------- */
-  window.checkPassword = function() {
+  function checkPassword() {
     const input = document.getElementById('passwordInput').value;
     if (input === BOARD_PASSWORD) {
       sessionStorage.setItem('board_unlocked', '1');
@@ -371,7 +372,15 @@
       document.getElementById('lockError').textContent = '비밀번호가 올바르지 않습니다.';
       document.getElementById('passwordInput').value = '';
     }
-  };
+  }
+  window.checkPassword = checkPassword;
+
+  // 버튼/엔터키에 직접 연결 (모듈 스코프에서도 확실히 동작)
+  document.getElementById('enterBtn').addEventListener('click', checkPassword);
+  document.getElementById('passwordInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') checkPassword();
+  });
+
   // 세션 동안 재입력 생략
   if (sessionStorage.getItem('board_unlocked') === '1') {
     document.getElementById('lockScreen').style.display = 'none';
