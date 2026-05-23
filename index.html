@@ -148,12 +148,26 @@
   .postit-content { font-size: 14px; line-height: 1.6; color: rgba(0,0,0,0.85); white-space: pre-wrap; }
   .postit.comment .postit-content { font-size: 13px; line-height: 1.55; }
 
+  /* 첨부 사진 */
+  .postit-image { margin-top: 10px; }
+  .postit-image img { max-width: 100%; border-radius: 8px; cursor: pointer; display: block; box-shadow: 0 2px 6px rgba(0,0,0,0.12); }
+  .img-attach-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+  .img-attach-btn { background: rgba(255,255,255,0.85); border: 1px solid rgba(0,0,0,0.15); border-radius: 6px; padding: 5px 10px; font-size: 12px; font-weight: 600; cursor: pointer; color: rgba(0,0,0,0.65); }
+  .img-attach-btn:hover { background: white; border-color: rgba(0,0,0,0.3); }
+  .img-preview-wrap { position: relative; display: inline-block; }
+  .img-preview-wrap img { max-height: 70px; border-radius: 6px; display: block; }
+  .img-remove-btn { position: absolute; top: -7px; right: -7px; background: #c0392b; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; cursor: pointer; line-height: 1; }
+  /* 사진 확대 보기 */
+  .img-lightbox { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 3000; align-items: center; justify-content: center; padding: 30px; cursor: zoom-out; }
+  .img-lightbox.active { display: flex; }
+  .img-lightbox img { max-width: 95%; max-height: 95%; border-radius: 8px; }
+
   .reply-to { font-size: 10px; color: rgba(0,0,0,0.5); background: rgba(0,0,0,0.06); padding: 2px 8px; border-radius: 6px; margin-bottom: 6px; display: inline-block; }
 
   .postit-footer { display: flex; gap: 8px; margin-top: 8px; padding-top: 6px; border-top: 1px dashed rgba(0,0,0,0.12); }
   .postit.root .postit-footer { margin-top: 12px; padding-top: 10px; }
-  .action-link { background: none; border: none; cursor: pointer; font-size: 11px; color: rgba(0,0,0,0.55); padding: 2px 4px; font-weight: 600; }
-  .action-link:hover { color: rgba(0,0,0,0.9); }
+  .action-link { background: rgba(90,139,191,0.12); border: 1px solid rgba(90,139,191,0.4); cursor: pointer; font-size: 12px; color: #4a7aae; padding: 6px 14px; font-weight: 700; border-radius: 8px; transition: all 0.15s; }
+  .action-link:hover { background: #5a8bbf; color: white; border-color: #5a8bbf; }
 
   .add-comment-btn { width: 100%; background: rgba(255, 255, 255, 0.55); border: 1.5px dashed rgba(90, 139, 191, 0.5); border-radius: 10px; padding: 10px; cursor: pointer; color: #5a8bbf; font-size: 13px; font-weight: 600; margin-top: 6px; transition: all 0.15s; }
   .add-comment-btn:hover { background: rgba(255, 255, 255, 0.8); border-color: #5a8bbf; border-style: solid; }
@@ -271,6 +285,11 @@
   <span id="connText">연결 중...</span>
 </div>
 
+<!-- 사진 확대 보기 -->
+<div class="img-lightbox" id="imgLightbox" onclick="this.classList.remove('active')">
+  <img id="imgLightboxImg" src="" alt="확대 이미지">
+</div>
+
 <!-- 새 메모 작성 모달 -->
 <div class="modal-overlay" id="modal">
   <div class="modal">
@@ -295,6 +314,14 @@
     <div class="form-group">
       <label>내용</label>
       <textarea id="inputContent" placeholder="생기부를 읽고 발견한 점, 의견, 질문 등을 자유롭게 작성해주세요."></textarea>
+    </div>
+    <div class="form-group">
+      <label>사진 첨부 (선택)</label>
+      <div class="img-attach-row">
+        <button type="button" class="img-attach-btn" onclick="document.getElementById('inputImageFile').click()">📷 사진 선택</button>
+        <input type="file" id="inputImageFile" accept="image/*" style="display:none" onchange="handleNoteImage(event)">
+        <div id="inputImagePreview"></div>
+      </div>
     </div>
     <div class="form-group">
       <label>포스트잇 색상</label>
@@ -489,6 +516,7 @@
         </div>
         <div class="note-category">${escapeHtml(note.category)}</div>
         <div class="postit-content">${escapeHtml(note.content)}</div>
+        ${note.image ? `<div class="postit-image"><img src="${note.image}" onclick="openLightbox('${note.image}')" alt="첨부 사진"></div>` : ''}
       </div>`;
   }
 
@@ -521,8 +549,9 @@
         </div>
         ${replyToBadge}
         <div class="postit-content">${escapeHtml(comment.text)}</div>
+        ${comment.image ? `<div class="postit-image"><img src="${comment.image}" onclick="openLightbox('${comment.image}')" alt="첨부 사진"></div>` : ''}
         <div class="postit-footer">
-          <button class="action-link" onclick="startReply('${noteId}', '${comment.id}')">↳ 이 의견에 답글</button>
+          <button class="action-link" onclick="startReply('${noteId}', '${comment.id}')">💬 답글 달기</button>
         </div>
       </div>
       ${replies.map(r => renderCommentPostit(noteId, r, allComments)).join('')}
@@ -534,7 +563,7 @@
     const formId = isEdit ? `editform-${noteId}-${editingComment.id}` : `form-${noteId}-${parentId || 'root'}`;
     const isReply = parentId !== null && parentId !== undefined;
     const saved = formState[formId] || (isEdit
-      ? { author: editingComment.author, text: editingComment.text, tag: editingComment.tag, color: editingComment.color }
+      ? { author: editingComment.author, text: editingComment.text, tag: editingComment.tag, color: editingComment.color, image: editingComment.image || null }
       : {});
     if (!saved.color) saved.color = COLORS[5];
     if (!formState[formId]) formState[formId] = saved;
@@ -542,6 +571,10 @@
     const colorOptions = COLORS.map(c => `
       <div class="mini-color ${saved.color === c ? 'selected' : ''}" style="background: ${c}" onclick="selectFormColor('${formId}', '${c}')"></div>
     `).join('');
+
+    const imgPreview = saved.image
+      ? `<div class="img-preview-wrap"><img src="${saved.image}"><button type="button" class="img-remove-btn" onclick="removeCommentImage('${formId}')">✕</button></div>`
+      : '';
 
     return `
       ${(!isEdit && !isReply) ? '<div style="font-size:11px; font-weight:700; color:rgba(0,0,0,0.45); margin:6px 2px 4px;">＋ 이 메모에 의견 달기</div>' : ''}
@@ -558,6 +591,11 @@
           <span class="form-color-picker-label">색상</span>${colorOptions}
         </div>
         <textarea data-field="text" placeholder="${isEdit ? '' : (isReply ? '답글을 입력하세요...' : '의견을 입력하세요. 근거·예시·다른 시각을 함께 적어주세요.')}">${escapeHtml(saved.text || '')}</textarea>
+        <div class="img-attach-row" style="margin-top:8px;">
+          <button type="button" class="img-attach-btn" onclick="this.parentNode.querySelector('input[type=file]').click()">📷 사진</button>
+          <input type="file" accept="image/*" style="display:none" onchange="handleCommentImage('${formId}', event)">
+          ${imgPreview}
+        </div>
         <div class="form-row-bottom">
           <span class="form-hint">${isEdit ? '수정 중' : '유형 태그와 색상을 선택해주세요'}</span>
           <div class="form-buttons">
@@ -607,6 +645,26 @@
     return `rgb(${r}, ${g}, ${b})`;
   }
 
+  /* ---------- 의견 사진 처리 ---------- */
+  window.handleCommentImage = async function(formId, event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    captureFormInputs();
+    try {
+      const data = await compressImage(file, 1000, 0.7);
+      if (!formState[formId]) formState[formId] = {};
+      formState[formId].image = data;
+      renderBoard();
+    } catch (err) { alert('사진 처리 실패: ' + err.message); }
+    event.target.value = '';
+  };
+
+  window.removeCommentImage = function(formId) {
+    captureFormInputs();
+    if (formState[formId]) formState[formId].image = null;
+    renderBoard();
+  };
+
   window.startAddComment = function(noteId) { captureFormInputs(); activeAddComment = noteId; activeReplyTo = null; renderBoard(); };
   window.cancelAddComment = function() { if (activeAddComment) delete formState[`form-${activeAddComment}-root`]; activeAddComment = null; renderBoard(); };
   window.startReply = function(noteId, parentId) { captureFormInputs(); activeReplyTo = { noteId, parentId }; activeAddComment = null; renderBoard(); };
@@ -618,14 +676,16 @@
   window.submitComment = function(noteId, parentId, formId) {
     captureFormInputs();
     const state = formState[formId] || {};
-    if (!state.text || !state.text.trim()) { alert('의견 내용을 입력해주세요.'); return; }
+    const hasText = state.text && state.text.trim();
+    if (!hasText && !state.image) { alert('의견 내용을 입력하거나 사진을 첨부해주세요.'); return; }
     if (!state.tag) { alert('의견 유형 태그를 선택해주세요. (질문/해석/보완 중 하나)'); return; }
     const commentId = 'c_' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
     const commentData = {
       author: (state.author || '').trim(),
-      text: state.text.trim(),
+      text: hasText ? state.text.trim() : '',
       tag: state.tag,
       color: state.color || COLORS[5],
+      image: state.image || null,
       parentId: parentId,
       createdAt: Date.now()
     };
@@ -637,10 +697,12 @@
   window.submitEditComment = function(noteId, commentId, formId) {
     captureFormInputs();
     const state = formState[formId] || {};
-    if (!state.text || !state.text.trim()) { alert('의견 내용을 입력해주세요.'); return; }
+    const hasText = state.text && state.text.trim();
+    if (!hasText && !state.image) { alert('의견 내용을 입력하거나 사진을 첨부해주세요.'); return; }
     const updates = {
       author: (state.author || '').trim(),
-      text: state.text.trim(),
+      text: hasText ? state.text.trim() : '',
+      image: state.image || null,
       editedAt: Date.now()
     };
     if (state.tag) updates.tag = state.tag;
@@ -668,14 +730,77 @@
     }
   };
 
+  /* ---------- 사진 압축 유틸 ---------- */
+  // 이미지를 최대 1000px로 줄이고 jpeg로 압축해 data URL(텍스트)로 변환
+  function compressImage(file, maxSize, quality) {
+    return new Promise((resolve, reject) => {
+      if (!file.type.startsWith('image/')) { reject(new Error('이미지 파일이 아닙니다.')); return; }
+      const reader = new FileReader();
+      reader.onload = e => {
+        const img = new Image();
+        img.onload = () => {
+          let { width, height } = img;
+          if (width > height && width > maxSize) { height = Math.round(height * maxSize / width); width = maxSize; }
+          else if (height > maxSize) { width = Math.round(width * maxSize / height); height = maxSize; }
+          const canvas = document.createElement('canvas');
+          canvas.width = width; canvas.height = height;
+          canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+          let result = canvas.toDataURL('image/jpeg', quality);
+          // 너무 크면 품질을 더 낮춰 재압축
+          let q = quality;
+          while (result.length > 700000 && q > 0.3) {
+            q -= 0.15;
+            result = canvas.toDataURL('image/jpeg', q);
+          }
+          resolve(result);
+        };
+        img.onerror = () => reject(new Error('이미지를 불러올 수 없습니다.'));
+        img.src = e.target.result;
+      };
+      reader.onerror = () => reject(new Error('파일을 읽을 수 없습니다.'));
+      reader.readAsDataURL(file);
+    });
+  }
+
+  window.openLightbox = function(src) {
+    document.getElementById('imgLightboxImg').src = src;
+    document.getElementById('imgLightbox').classList.add('active');
+  };
+
+  /* ---------- 메모 모달 사진 처리 ---------- */
+  let modalImageData = null; // 현재 모달에 첨부된 사진 (data URL)
+
+  window.handleNoteImage = async function(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    try {
+      modalImageData = await compressImage(file, 1000, 0.7);
+      renderModalImagePreview();
+    } catch (err) { alert('사진 처리 실패: ' + err.message); }
+    event.target.value = '';
+  };
+
+  function renderModalImagePreview() {
+    const wrap = document.getElementById('inputImagePreview');
+    if (modalImageData) {
+      wrap.innerHTML = `<div class="img-preview-wrap"><img src="${modalImageData}"><button type="button" class="img-remove-btn" onclick="removeNoteImage()">✕</button></div>`;
+    } else {
+      wrap.innerHTML = '';
+    }
+  }
+
+  window.removeNoteImage = function() { modalImageData = null; renderModalImagePreview(); };
+
   /* ---------- 메모(루트) 저장 ---------- */
   window.openModal = function() {
     editingNoteId = null;
+    modalImageData = null;
     document.getElementById('modalTitle').textContent = '새 메모 작성';
     document.getElementById('submitNoteBtn').textContent = '작성하기';
     document.getElementById('inputAuthor').value = '';
     document.getElementById('inputCategory').value = '자율활동';
     document.getElementById('inputContent').value = '';
+    renderModalImagePreview();
     initColorPicker(COLORS[0]);
     document.getElementById('modal').classList.add('active');
   };
@@ -684,30 +809,33 @@
     const note = notes.find(n => n.id === noteId);
     if (!note) return;
     editingNoteId = noteId;
+    modalImageData = note.image || null;
     document.getElementById('modalTitle').textContent = '메모 수정';
     document.getElementById('submitNoteBtn').textContent = '수정 완료';
     document.getElementById('inputAuthor').value = note.author || '';
     document.getElementById('inputCategory').value = note.category;
     document.getElementById('inputContent').value = note.content;
+    renderModalImagePreview();
     initColorPicker(note.color);
     document.getElementById('modal').classList.add('active');
   };
 
-  window.closeModal = function() { document.getElementById('modal').classList.remove('active'); editingNoteId = null; };
+  window.closeModal = function() { document.getElementById('modal').classList.remove('active'); editingNoteId = null; modalImageData = null; };
 
   window.submitNote = function() {
     const author = document.getElementById('inputAuthor').value.trim();
     const category = document.getElementById('inputCategory').value;
     const content = document.getElementById('inputContent').value.trim();
-    if (!content) { alert('내용을 입력해주세요.'); return; }
+    if (!content && !modalImageData) { alert('내용을 입력하거나 사진을 첨부해주세요.'); return; }
 
     if (editingNoteId) {
-      update(ref(db, `notes/${editingNoteId}`), { author, category, content, color: selectedColor, editedAt: Date.now() });
+      update(ref(db, `notes/${editingNoteId}`), { author, category, content, color: selectedColor, image: modalImageData || null, editedAt: Date.now() });
     } else {
       const noteId = 'note_' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
       set(ref(db, `notes/${noteId}`), {
         author, category, content,
         color: selectedColor,
+        image: modalImageData || null,
         createdAt: Date.now(),
         comments: {}
       });
