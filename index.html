@@ -8,7 +8,6 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Malgun Gothic', '맑은 고딕', -apple-system, sans-serif; background-color: #DCE7F2; min-height: 100vh; padding: 24px; color: #2c3e50; }
 
-  /* 비밀번호 잠금 */
   .lock-screen { position: fixed; inset: 0; background: #DCE7F2; z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px; }
   .lock-box { background: white; border-radius: 18px; padding: 40px 36px; box-shadow: 0 12px 40px rgba(70,100,140,0.18); width: 100%; max-width: 380px; text-align: center; }
   .lock-box .lock-icon { font-size: 40px; margin-bottom: 14px; }
@@ -32,7 +31,6 @@
   .legend-item { display: flex; align-items: center; gap: 4px; }
   .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
 
-  /* 학생 탭 */
   .student-tabs { max-width: 1600px; margin: 0 auto 18px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
   .student-tab { padding: 9px 18px; border-radius: 12px 12px 0 0; border: none; background: rgba(255,255,255,0.55); color: #5a6b7a; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 8px; }
   .student-tab:hover { background: rgba(255,255,255,0.85); }
@@ -51,37 +49,47 @@
   .filter-section label { font-size: 13px; color: #6c7a89; font-weight: 600; }
   .filter-section select { border: none; background: transparent; font-size: 14px; color: #34495e; cursor: pointer; padding: 4px 8px; font-weight: 600; }
 
-  /* 카드 보드 */
   .board { max-width: 1600px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 22px; align-items: start; }
-  .card-column { background: rgba(255,255,255,0.32); border-radius: 16px; padding: 14px; border: 1px solid rgba(255,255,255,0.6); }
+  .memo-group { background: rgba(255,255,255,0.32); border-radius: 16px; padding: 14px; border: 1px solid rgba(255,255,255,0.6); }
 
-  /* 카드 (모두 동일한 형태) */
-  .card { border-radius: 12px; padding: 14px 16px; box-shadow: 0 4px 12px rgba(70,100,140,0.13); word-break: break-word; margin-bottom: 10px; }
-  .card.child { margin-left: 16px; position: relative; }
-  .card.child::before { content: ''; position: absolute; left: -16px; top: -10px; width: 12px; height: 22px; border-left: 2px dashed rgba(90,139,191,0.4); border-bottom: 2px dashed rgba(90,139,191,0.4); border-bottom-left-radius: 8px; }
-  .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; gap: 8px; }
-  .card-meta { font-size: 11px; color: rgba(0,0,0,0.55); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-  .card-author { font-weight: 700; color: rgba(0,0,0,0.78); }
-  .card-time { color: rgba(0,0,0,0.45); }
-  .card-actions { display: flex; gap: 2px; }
-  .icon-btn { background: none; border: none; cursor: pointer; font-size: 13px; color: rgba(0,0,0,0.4); padding: 2px 5px; line-height: 1; border-radius: 4px; }
-  .icon-btn:hover { color: rgba(0,0,0,0.85); background: rgba(0,0,0,0.08); }
-  .cat-badge { display: inline-block; background: rgba(0,0,0,0.12); color: rgba(0,0,0,0.78); padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; }
-  .tag-badge { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 8px; color: white; letter-spacing: 0.3px; white-space: nowrap; }
+  /* 큰 포스트잇 (메모) */
+  .memo { border-radius: 12px; padding: 18px; box-shadow: 0 6px 18px rgba(70,100,140,0.18); word-break: break-word; min-height: 150px; margin-bottom: 12px; }
+  .memo-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; gap: 8px; }
+  .memo-meta { font-size: 12px; color: rgba(0,0,0,0.55); }
+  .memo-author { font-weight: 700; color: rgba(0,0,0,0.78); }
+  .memo-time { color: rgba(0,0,0,0.45); }
+  .cat-badge { display: inline-block; background: rgba(0,0,0,0.12); color: rgba(0,0,0,0.78); padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; margin-bottom: 10px; }
+  .memo-content { font-size: 14px; line-height: 1.6; color: rgba(0,0,0,0.85); white-space: pre-wrap; }
+  .memo-image, .comment-image { margin-top: 10px; }
+  .memo-image img, .comment-image img { max-width: 100%; border-radius: 8px; cursor: pointer; display: block; box-shadow: 0 2px 6px rgba(0,0,0,0.12); }
+
+  /* 댓글 포스트잇 */
+  .comment { border-radius: 12px; padding: 12px 14px; box-shadow: 0 4px 12px rgba(70,100,140,0.13); word-break: break-word; margin-bottom: 10px; font-size: 13px; }
+  .comment.reply { margin-left: 16px; position: relative; }
+  .comment.reply::before { content: ''; position: absolute; left: -16px; top: -10px; width: 12px; height: 22px; border-left: 2px dashed rgba(90,139,191,0.4); border-bottom: 2px dashed rgba(90,139,191,0.4); border-bottom-left-radius: 8px; }
+  .comment-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; gap: 8px; }
+  .comment-meta { font-size: 11px; color: rgba(0,0,0,0.55); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .comment-author { font-weight: 700; color: rgba(0,0,0,0.78); }
+  .comment-time { color: rgba(0,0,0,0.45); }
+  .tag-badge { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 8px; color: white; white-space: nowrap; }
   .tag-question { background: #c4a47d; }
   .tag-interpret { background: #9b87b8; }
   .tag-suggest { background: #7d9fc4; }
   .tag-concern { background: #c47d8a; }
   .tag-agree { background: #87b896; }
-  .card-content { font-size: 14px; line-height: 1.6; color: rgba(0,0,0,0.85); white-space: pre-wrap; }
-  .card-image { margin-top: 10px; }
-  .card-image img { max-width: 100%; border-radius: 8px; cursor: pointer; display: block; box-shadow: 0 2px 6px rgba(0,0,0,0.12); }
+  .comment-content { color: rgba(0,0,0,0.85); white-space: pre-wrap; line-height: 1.55; }
+  .actions { display: flex; gap: 2px; }
+  .icon-btn { background: none; border: none; cursor: pointer; font-size: 13px; color: rgba(0,0,0,0.4); padding: 2px 5px; line-height: 1; border-radius: 4px; }
+  .icon-btn:hover { color: rgba(0,0,0,0.85); background: rgba(0,0,0,0.08); }
 
-  /* 카드 작성 폼 */
-  .card-form { border-radius: 12px; padding: 12px; margin-bottom: 10px; box-shadow: 0 4px 12px rgba(70,100,140,0.15); border: 2px solid rgba(90,139,191,0.4); }
-  .card-form.child-form { margin-left: 16px; position: relative; }
-  .card-form.child-form::before { content: ''; position: absolute; left: -16px; top: -10px; width: 12px; height: 22px; border-left: 2px dashed rgba(90,139,191,0.4); border-bottom: 2px dashed rgba(90,139,191,0.4); border-bottom-left-radius: 8px; }
-  .form-label { font-size: 11px; font-weight: 700; color: rgba(0,0,0,0.42); margin: 6px 2px 4px; }
+  .reply-btn { background: rgba(90,139,191,0.12); border: 1px solid rgba(90,139,191,0.4); cursor: pointer; font-size: 11px; color: #4a7aae; padding: 5px 12px; font-weight: 700; border-radius: 8px; transition: all 0.15s; margin-top: 6px; }
+  .reply-btn:hover { background: #5a8bbf; color: white; border-color: #5a8bbf; }
+  .add-comment-btn { width: 100%; background: rgba(255,255,255,0.55); border: 1.5px dashed rgba(90,139,191,0.5); border-radius: 10px; padding: 10px; cursor: pointer; color: #5a8bbf; font-size: 13px; font-weight: 600; transition: all 0.15s; }
+  .add-comment-btn:hover { background: rgba(255,255,255,0.85); border-color: #5a8bbf; border-style: solid; }
+
+  /* 댓글 작성 폼 */
+  .comment-form { background: rgba(255,255,255,0.7); border-radius: 12px; padding: 12px; margin-bottom: 10px; box-shadow: 0 4px 12px rgba(70,100,140,0.15); border: 2px solid rgba(90,139,191,0.4); }
+  .comment-form.reply-form { margin-left: 16px; }
   .form-row-top { display: flex; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; align-items: center; }
   .author-input { flex: 1; min-width: 100px; border: 1px solid rgba(0,0,0,0.15); background: white; padding: 5px 8px; border-radius: 6px; font-size: 12px; font-family: inherit; }
   .tag-selector { display: flex; gap: 3px; flex-wrap: wrap; }
@@ -91,13 +99,8 @@
   .tag-btn.active[data-tag="question"] { background: #c4a47d; border-color: #c4a47d; }
   .tag-btn.active[data-tag="interpret"] { background: #9b87b8; border-color: #9b87b8; }
   .tag-btn.active[data-tag="suggest"] { background: #7d9fc4; border-color: #7d9fc4; }
-  .cat-selector { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; margin-bottom: 8px; padding: 6px 8px; background: rgba(255,255,255,0.5); border-radius: 8px; }
-  .cat-selector-label { font-size: 10px; color: rgba(0,0,0,0.55); font-weight: 700; margin-right: 2px; }
-  .cat-btn { border: 1.5px solid rgba(0,0,0,0.12); background: rgba(255,255,255,0.85); padding: 3px 9px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; color: rgba(0,0,0,0.6); transition: all 0.15s; }
-  .cat-btn:hover { border-color: rgba(0,0,0,0.3); }
-  .cat-btn.active { color: rgba(0,0,0,0.8); }
-  .card-form textarea { width: 100%; border: 1px solid rgba(0,0,0,0.15); background: white; padding: 8px 10px; border-radius: 6px; font-size: 13px; font-family: inherit; resize: vertical; min-height: 64px; line-height: 1.55; }
-  .card-form textarea:focus, .card-form input:focus { outline: none; border-color: rgba(90,139,191,0.6); }
+  .comment-form textarea { width: 100%; border: 1px solid rgba(0,0,0,0.15); background: white; padding: 8px 10px; border-radius: 6px; font-size: 13px; font-family: inherit; resize: vertical; min-height: 60px; line-height: 1.55; }
+  .comment-form textarea:focus, .comment-form input:focus { outline: none; border-color: rgba(90,139,191,0.6); }
   .img-attach-row { display: flex; align-items: center; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
   .img-attach-btn { background: rgba(255,255,255,0.85); border: 1px solid rgba(0,0,0,0.15); border-radius: 6px; padding: 5px 10px; font-size: 12px; font-weight: 600; cursor: pointer; color: rgba(0,0,0,0.65); }
   .img-attach-btn:hover { background: white; border-color: rgba(0,0,0,0.3); }
@@ -111,7 +114,18 @@
   .submit-btn:hover { background: #4a7aae; }
   .cancel-btn { background: transparent; color: rgba(0,0,0,0.55); border: none; padding: 6px 10px; cursor: pointer; font-size: 11px; font-weight: 600; }
 
-  /* 사진 확대 */
+  /* 메모 작성 모달 */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(40,60,90,0.4); backdrop-filter: blur(4px); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
+  .modal-overlay.active { display: flex; }
+  .modal { background: white; border-radius: 16px; padding: 28px; width: 100%; max-width: 520px; box-shadow: 0 12px 40px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
+  .modal h2 { font-size: 18px; margin-bottom: 18px; color: #34495e; }
+  .form-group { margin-bottom: 16px; }
+  .form-group label { display: block; font-size: 13px; color: #6c7a89; margin-bottom: 6px; font-weight: 600; }
+  .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 12px; border: 1px solid #d0dae6; border-radius: 8px; font-size: 14px; font-family: inherit; background: #f7fafd; }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #5a8bbf; background: white; }
+  .form-group textarea { min-height: 110px; resize: vertical; line-height: 1.6; }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 22px; }
+
   .img-lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 3000; align-items: center; justify-content: center; padding: 30px; cursor: zoom-out; }
   .img-lightbox.active { display: flex; }
   .img-lightbox img { max-width: 95%; max-height: 95%; border-radius: 8px; }
@@ -142,7 +156,7 @@
 
 <header>
   <h1>📋 생기부 분석 모임 협업 보드</h1>
-  <p class="subtitle">학생별로 페이지를 만들어 생기부 영역별 의견을 공유하는 공간입니다. 모든 카드에 자유롭게 댓글을 달 수 있습니다.</p>
+  <p class="subtitle">학생별 페이지에서 생기부 영역별 메모를 올리고, 자유롭게 의견을 나누는 공간입니다.</p>
   <div class="legend" style="margin-top:8px;">
     <span style="font-size:11px; font-weight:700; color:rgba(0,0,0,0.5); margin-right:4px;">영역별 색:</span>
     <span class="legend-item"><span class="legend-dot" style="background:#FFD6D6"></span>자율활동</span>
@@ -164,7 +178,7 @@
 <div class="student-tabs" id="studentTabs"></div>
 
 <div class="toolbar">
-  <button class="btn btn-primary" id="addCardBtn">＋ 새 카드 작성</button>
+  <button class="btn btn-primary" id="addMemoBtn">＋ 새 메모 작성</button>
   <div class="filter-section">
     <label>영역 필터:</label>
     <select id="filterCategory">
@@ -187,8 +201,49 @@
   <span id="connText">연결 중...</span>
 </div>
 
-<div class="img-lightbox" id="imgLightbox">
-  <img id="imgLightboxImg" src="" alt="확대 이미지">
+<div class="img-lightbox" id="imgLightbox"><img id="imgLightboxImg" src="" alt="확대 이미지"></div>
+
+<!-- 메모 작성 모달 -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <h2 id="modalTitle">새 메모 작성</h2>
+    <div class="form-group">
+      <label>작성자</label>
+      <input type="text" id="inputAuthor" placeholder="성함을 입력하세요 (예: 김ㅇㅇ 선생님)">
+    </div>
+    <div class="form-group">
+      <label>영역 <span style="font-weight:400; color:#9aa7b4;">(영역에 따라 색이 자동 지정됩니다)</span></label>
+      <select id="inputCategory">
+        <option value="자율활동">자율활동</option>
+        <option value="진로활동">진로활동</option>
+        <option value="동아리활동">동아리활동</option>
+        <option value="봉사활동">봉사활동</option>
+        <option value="교과세특">교과세특</option>
+        <option value="행동특성">행동특성 및 종합의견</option>
+        <option value="기타">기타</option>
+      </select>
+      <div style="margin-top:8px; display:flex; align-items:center; gap:8px; font-size:12px; color:#6c7a89;">
+        <span id="modalColorSwatch" style="width:18px; height:18px; border-radius:50%; display:inline-block; border:1px solid rgba(0,0,0,0.15);"></span>
+        <span id="modalColorText">이 영역의 색상</span>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>내용</label>
+      <textarea id="inputContent" placeholder="생기부를 읽고 발견한 점, 의견, 질문 등을 자유롭게 작성해주세요."></textarea>
+    </div>
+    <div class="form-group">
+      <label>사진 첨부 (선택)</label>
+      <div class="img-attach-row">
+        <button type="button" class="img-attach-btn" onclick="document.getElementById('inputImageFile').click()">📷 사진 선택</button>
+        <input type="file" id="inputImageFile" accept="image/*" style="display:none" onchange="handleMemoImage(event)">
+        <div id="inputImagePreview"></div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">취소</button>
+      <button class="btn btn-primary" id="submitMemoBtn" onclick="submitMemo()">작성하기</button>
+    </div>
+  </div>
 </div>
 
 <script type="module">
@@ -196,9 +251,6 @@
   import { getDatabase, ref, onValue, set, remove, update, push }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-  /* ============================================================
-     ★★★ 설정 (이미 입력되어 있습니다) ★★★
-     ============================================================ */
   const firebaseConfig = {
     apiKey: "AIzaSyBtgUL85OIEYat20W8wGideuf8ln1pLrrE",
     authDomain: "edu-92632.firebaseapp.com",
@@ -210,386 +262,344 @@
     measurementId: "G-7YX0GQ6WPC"
   };
   const BOARD_PASSWORD = "ys2026";
-  /* ============================================================ */
 
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
   const studentsRef = ref(db, 'students');
 
-  const CATEGORY_COLORS = {
-    '자율활동': '#FFD6D6', '진로활동': '#C8E6F0', '동아리활동': '#D4F0D4', '봉사활동': '#FFDAB8',
-    '교과세특': '#FFF4B8', '독서활동': '#E0D4F0', '행동특성': '#F5E1C8', '기타': '#FFFFFF'
-  };
-  const CATEGORY_LIST = ['자율활동','진로활동','동아리활동','봉사활동','교과세특','행동특성','기타'];
+  const CATEGORY_COLORS = { '자율활동':'#FFD6D6','진로활동':'#C8E6F0','동아리활동':'#D4F0D4','봉사활동':'#FFDAB8','교과세특':'#FFF4B8','독서활동':'#E0D4F0','행동특성':'#F5E1C8','기타':'#FFFFFF' };
   function categoryColor(cat) { return CATEGORY_COLORS[cat] || '#FFFFFF'; }
+  const TAGS = { question:{label:'🔍 질문',class:'tag-question'}, interpret:{label:'💬 해석',class:'tag-interpret'}, suggest:{label:'💡 보완',class:'tag-suggest'} };
+  const LEGACY_TAGS = { concern:{label:'⚠️ 우려',class:'tag-concern'}, agree:{label:'✅ 동의',class:'tag-agree'} };
+  function getTag(k){ return TAGS[k] || LEGACY_TAGS[k] || TAGS.question; }
 
-  const TAGS = {
-    question:  { label: '🔍 질문',  class: 'tag-question' },
-    interpret: { label: '💬 해석',  class: 'tag-interpret' },
-    suggest:   { label: '💡 보완',  class: 'tag-suggest' }
-  };
-  const LEGACY_TAGS = { concern: { label: '⚠️ 우려', class: 'tag-concern' }, agree: { label: '✅ 동의', class: 'tag-agree' } };
-  function getTag(key) { return TAGS[key] || LEGACY_TAGS[key] || TAGS.question; }
-
-  // 상태
-  let students = {};       // {studentId: {name, createdAt, cards: {cardId: {...}}}}
+  let students = {};
   let currentStudentId = null;
-  let editingCard = null;  // {studentId, cardId}
-  let formState = {};      // 폼 임시 상태
+  let editingMemoId = null;
+  let modalImageData = null;
+  let activeReplyTo = null;      // {memoId, parentId}  parentId=null이면 메모에 직접 댓글
+  let activeEditComment = null;  // {memoId, commentId}
+  let formState = {};
 
-  /* ---------- 비밀번호 ---------- */
+  /* 비밀번호 */
   function checkPassword() {
-    const input = document.getElementById('passwordInput').value;
-    if (input === BOARD_PASSWORD) {
-      sessionStorage.setItem('board_unlocked', '1');
-      document.getElementById('lockScreen').style.display = 'none';
-    } else {
-      document.getElementById('lockError').textContent = '비밀번호가 올바르지 않습니다.';
-      document.getElementById('passwordInput').value = '';
-    }
+    const v = document.getElementById('passwordInput').value;
+    if (v === BOARD_PASSWORD) { sessionStorage.setItem('board_unlocked','1'); document.getElementById('lockScreen').style.display='none'; }
+    else { document.getElementById('lockError').textContent='비밀번호가 올바르지 않습니다.'; document.getElementById('passwordInput').value=''; }
   }
   document.getElementById('enterBtn').addEventListener('click', checkPassword);
-  document.getElementById('passwordInput').addEventListener('keydown', e => { if (e.key === 'Enter') checkPassword(); });
-  if (sessionStorage.getItem('board_unlocked') === '1') {
-    document.getElementById('lockScreen').style.display = 'none';
-  } else {
-    document.getElementById('passwordInput').focus();
-  }
+  document.getElementById('passwordInput').addEventListener('keydown', e=>{ if(e.key==='Enter') checkPassword(); });
+  if (sessionStorage.getItem('board_unlocked')==='1') document.getElementById('lockScreen').style.display='none';
+  else document.getElementById('passwordInput').focus();
 
-  /* ---------- Firebase 구독 ---------- */
-  onValue(studentsRef, (snapshot) => {
-    students = snapshot.val() || {};
+  /* Firebase 구독 */
+  onValue(studentsRef, (snap)=>{
+    students = snap.val() || {};
     setConn(true);
-    // 현재 선택된 학생이 없거나 삭제됐으면 첫 학생 선택
     const ids = Object.keys(students);
     if (!currentStudentId || !students[currentStudentId]) {
       currentStudentId = ids.length ? ids.sort((a,b)=>students[a].createdAt-students[b].createdAt)[0] : null;
     }
-    renderTabs();
-    renderBoard();
-  }, (err) => { console.error(err); setConn(false); });
+    renderTabs(); renderBoard();
+  }, (e)=>{ console.error(e); setConn(false); });
 
-  function setConn(online) {
-    const dot = document.getElementById('connDot'), text = document.getElementById('connText');
-    if (online) { dot.className = 'conn-dot online'; text.textContent = '실시간 연결됨'; }
-    else { dot.className = 'conn-dot offline'; text.textContent = '연결 끊김 (새로고침 해보세요)'; }
-  }
+  function setConn(on){ const d=document.getElementById('connDot'),t=document.getElementById('connText'); if(on){d.className='conn-dot online';t.textContent='실시간 연결됨';}else{d.className='conn-dot offline';t.textContent='연결 끊김 (새로고침 해보세요)';} }
 
-  /* ---------- 학생 탭 ---------- */
-  function renderTabs() {
+  /* 학생 탭 */
+  function renderTabs(){
     const wrap = document.getElementById('studentTabs');
     const ids = Object.keys(students).sort((a,b)=>students[a].createdAt-students[b].createdAt);
-    let html = ids.map(id => `
-      <button class="student-tab ${id === currentStudentId ? 'active' : ''}" onclick="selectStudent('${id}')">
-        ${escapeHtml(students[id].name || '이름없음')}
+    let html = ids.map(id=>`
+      <button class="student-tab ${id===currentStudentId?'active':''}" onclick="selectStudent('${id}')">
+        ${escapeHtml(students[id].name||'이름없음')}
         <span class="tab-del" onclick="event.stopPropagation(); deleteStudent('${id}')" title="이 학생 페이지 삭제">✕</span>
-      </button>
-    `).join('');
+      </button>`).join('');
     html += `<button class="add-student-btn" onclick="addStudent()">＋ 새 학생 추가</button>`;
     wrap.innerHTML = html;
   }
-
-  window.selectStudent = function(id) { currentStudentId = id; renderTabs(); renderBoard(); };
-
-  window.addStudent = function() {
+  window.selectStudent = function(id){ currentStudentId=id; activeReplyTo=null; activeEditComment=null; renderTabs(); renderBoard(); };
+  window.addStudent = function(){
     const name = prompt('새 학생의 이름(또는 구분명)을 입력하세요.\n예: 김ㅇㅇ, 1반 3번 등');
-    if (name === null) return;
-    const trimmed = name.trim();
-    if (!trimmed) { alert('이름을 입력해주세요.'); return; }
-    const newRef = push(studentsRef);
-    set(newRef, { name: trimmed, createdAt: Date.now(), cards: {} }).then(() => {
-      currentStudentId = newRef.key;
-      renderTabs(); renderBoard();
-    });
+    if (name===null) return;
+    const t = name.trim(); if(!t){ alert('이름을 입력해주세요.'); return; }
+    const r = push(studentsRef);
+    set(r, { name:t, createdAt:Date.now(), memos:{} }).then(()=>{ currentStudentId=r.key; renderTabs(); renderBoard(); });
+  };
+  window.deleteStudent = function(id){
+    const name = students[id]?(students[id].name||'이 학생'):'이 학생';
+    if(!confirm(`'${name}' 페이지를 삭제하시겠습니까?\n이 학생의 모든 메모가 함께 삭제됩니다.`)) return;
+    remove(ref(db,`students/${id}`));
   };
 
-  window.deleteStudent = function(id) {
-    const name = students[id] ? (students[id].name || '이 학생') : '이 학생';
-    if (!confirm(`'${name}' 페이지를 삭제하시겠습니까?\n이 학생의 모든 카드가 함께 삭제됩니다.`)) return;
-    remove(ref(db, `students/${id}`));
-  };
+  function currentMemos(){ if(!currentStudentId||!students[currentStudentId]) return {}; return students[currentStudentId].memos||{}; }
 
-  /* ---------- 카드 보드 ---------- */
-  function currentCards() {
-    if (!currentStudentId || !students[currentStudentId]) return {};
-    return students[currentStudentId].cards || {};
-  }
-
-  function captureFormInputs() {
-    document.querySelectorAll('[data-form-id]').forEach(form => {
-      const fid = form.dataset.formId;
-      if (!formState[fid]) formState[fid] = {};
-      form.querySelectorAll('input[data-field], textarea[data-field]').forEach(el => {
-        formState[fid][el.dataset.field] = el.value;
-      });
+  function captureFormInputs(){
+    document.querySelectorAll('[data-form-id]').forEach(form=>{
+      const fid=form.dataset.formId; if(!formState[fid])formState[fid]={};
+      form.querySelectorAll('input[data-field],textarea[data-field]').forEach(el=>{ formState[fid][el.dataset.field]=el.value; });
     });
   }
 
-  function renderBoard() {
+  /* 보드 렌더 */
+  function renderBoard(){
     captureFormInputs();
     const board = document.getElementById('board');
+    if(!currentStudentId){ board.innerHTML=`<div class="empty-state"><h3>학생 페이지가 없습니다</h3><p>위의 "＋ 새 학생 추가"를 눌러 첫 학생 페이지를 만들어보세요.</p></div>`; return; }
 
-    if (!currentStudentId) {
-      board.innerHTML = `<div class="empty-state"><h3>학생 페이지가 없습니다</h3><p>위의 "＋ 새 학생 추가"를 눌러 첫 학생 페이지를 만들어보세요.</p></div>`;
-      return;
-    }
-
-    const cardsObj = currentCards();
-    const cards = Object.keys(cardsObj).map(id => ({ id, ...cardsObj[id], parentId: cardsObj[id].parentId || null }));
+    const memosObj = currentMemos();
+    const memos = Object.keys(memosObj).map(id=>({id,...memosObj[id]}));
     const filter = document.getElementById('filterCategory').value;
+    let shown = filter==='all'?memos:memos.filter(m=>m.category===filter);
+    shown.sort((a,b)=>b.createdAt-a.createdAt);
 
-    // 최상위 카드 (부모 없음)
-    let roots = cards.filter(c => !c.parentId);
-    if (filter !== 'all') roots = roots.filter(c => c.category === filter);
-    roots.sort((a,b)=>b.createdAt-a.createdAt);
+    if(shown.length===0){ board.innerHTML=`<div class="empty-state"><h3>아직 메모가 없습니다</h3><p>"＋ 새 메모 작성"으로 이 학생의 첫 메모를 올려보세요.</p></div>`; return; }
 
-    // 최상위 카드가 없으면, 새 카드 작성 폼만 표시
-    let html = '';
-    if (roots.length === 0) {
-      html += `<div class="card-column">${renderCardForm(null)}</div>`;
-    } else {
-      html += roots.map(root => `<div class="card-column">${renderCardTree(root.id, cards, 0)}</div>`).join('');
-      // 새 최상위 카드 작성 칸도 항상 하나
-      html += `<div class="card-column">${renderCardForm(null)}</div>`;
-    }
-    board.innerHTML = html;
+    board.innerHTML = shown.map(memo=>renderMemoGroup(memo)).join('');
     bindFormListeners();
   }
 
-  // 카드와 그 자식(댓글)들을 재귀적으로 렌더
-  function renderCardTree(cardId, allCards, depth) {
-    const card = allCards.find(c => c.id === cardId);
-    if (!card) return '';
-    const isEditing = editingCard && editingCard.cardId === cardId && editingCard.studentId === currentStudentId;
-    if (isEditing) {
-      // 수정 폼 + 자식들
-      const children = allCards.filter(c => c.parentId === cardId).sort((a,b)=>a.createdAt-b.createdAt);
-      return renderCardForm(card.parentId, card)
-        + renderCommentArea(cardId, allCards, depth)
-        + children.map(ch => renderCardTree(ch.id, allCards, depth+1)).join('');
-    }
-    const children = allCards.filter(c => c.parentId === cardId).sort((a,b)=>a.createdAt-b.createdAt);
-    const tag = getTag(card.tag);
-    const bg = card.category ? categoryColor(card.category) : '#FFFFFF';
-    const childClass = depth > 0 ? 'child' : '';
+  function renderMemoGroup(memo){
+    const commentsObj = memo.comments || {};
+    const comments = Object.keys(commentsObj).map(id=>({id,...commentsObj[id],parentId:commentsObj[id].parentId||null}));
+    const topComments = comments.filter(c=>!c.parentId).sort((a,b)=>a.createdAt-b.createdAt);
+    const commentsHtml = topComments.map(c=>renderComment(memo.id, c, comments, 0)).join('');
 
-    return `
-      <div class="card ${childClass}" style="background:${bg}">
-        <div class="card-header">
-          <div class="card-meta">
-            ${card.category ? `<span class="cat-badge">${escapeHtml(card.category)}</span>` : ''}
-            <span class="tag-badge ${tag.class}">${tag.label}</span>
-            <span class="card-author">${escapeHtml(card.author || '익명')}</span>
-            <span class="card-time">${formatDate(card.createdAt)}${card.editedAt ? ' ·수정' : ''}</span>
-          </div>
-          <div class="card-actions">
-            <button class="icon-btn" onclick="startEditCard('${cardId}')" title="수정">✎</button>
-            <button class="icon-btn" onclick="deleteCard('${cardId}')" title="삭제">✕</button>
-          </div>
-        </div>
-        <div class="card-content">${escapeHtml(card.content)}</div>
-        ${card.image ? `<div class="card-image"><img src="${card.image}" onclick="openLightbox('${card.image}')" alt="첨부 사진"></div>` : ''}
-      </div>
-      ${renderCardForm(cardId)}
-      ${children.map(ch => renderCardTree(ch.id, allCards, depth+1)).join('')}
-    `;
+    // 메모에 직접 댓글 다는 영역: 버튼 또는 폼
+    const replyingToMemo = activeReplyTo && activeReplyTo.memoId===memo.id && activeReplyTo.parentId===null;
+    const addArea = replyingToMemo
+      ? renderCommentForm(memo.id, null)
+      : `<button class="add-comment-btn" onclick="startReply('${memo.id}', null)">＋ 의견 달기</button>`;
+
+    return `<div class="memo-group">${renderMemo(memo)}${commentsHtml}${addArea}</div>`;
   }
 
-  function renderCommentArea(cardId, allCards, depth) { return ''; }
+  function renderMemo(memo){
+    const bg = memo.category ? categoryColor(memo.category) : '#FFFFFF';
+    return `
+      <div class="memo" style="background:${bg}">
+        <div class="memo-header">
+          <div class="memo-meta">
+            <span class="memo-author">${escapeHtml(memo.author||'익명')}</span>
+            <span class="memo-time"> · ${formatDate(memo.createdAt)}${memo.editedAt?' (수정됨)':''}</span>
+          </div>
+          <div class="actions">
+            <button class="icon-btn" onclick="editMemo('${memo.id}')" title="수정">✎</button>
+            <button class="icon-btn" onclick="deleteMemo('${memo.id}')" title="삭제">✕</button>
+          </div>
+        </div>
+        <div class="cat-badge">${escapeHtml(memo.category||'기타')}</div>
+        <div class="memo-content">${escapeHtml(memo.content)}</div>
+        ${memo.image?`<div class="memo-image"><img src="${memo.image}" onclick="openLightbox('${memo.image}')" alt="첨부 사진"></div>`:''}
+      </div>`;
+  }
 
-  // 카드 작성/수정 폼 (parentId=null이면 최상위 새 카드)
-  function renderCardForm(parentId, editingCardObj) {
-    const isEdit = !!editingCardObj;
-    const fid = isEdit ? `editform-${editingCardObj.id}` : `form-${parentId || 'root'}`;
-    const isChild = parentId !== null && parentId !== undefined;
-    const saved = formState[fid] || (isEdit
-      ? { author: editingCardObj.author, content: editingCardObj.content, tag: editingCardObj.tag, category: editingCardObj.category, image: editingCardObj.image || null }
-      : {});
-    if (!formState[fid]) formState[fid] = saved;
-    const bg = saved.category ? categoryColor(saved.category) : '#FFFFFF';
+  function renderComment(memoId, comment, allComments, depth){
+    const isEditing = activeEditComment && activeEditComment.memoId===memoId && activeEditComment.commentId===comment.id;
+    if(isEditing) return renderCommentForm(memoId, comment.parentId, comment);
 
-    const imgPreview = saved.image
-      ? `<div class="img-preview-wrap"><img src="${saved.image}"><button type="button" class="img-remove-btn" onclick="removeFormImage('${fid}')">✕</button></div>`
-      : '';
-    const catOptions = CATEGORY_LIST.map(cat => `
-      <button class="cat-btn ${saved.category === cat ? 'active' : ''}" style="${saved.category === cat ? `background:${categoryColor(cat)};border-color:rgba(0,0,0,0.35);` : ''}" data-cat="${cat}" onclick="selectFormCategory('${fid}','${cat}')">${cat}</button>
-    `).join('');
-    const tagOptions = Object.entries(TAGS).map(([k,t]) => `
-      <button class="tag-btn ${saved.tag === k ? 'active' : ''}" data-tag="${k}" onclick="selectFormTag('${fid}','${k}')">${t.label}</button>
-    `).join('');
-
-    let label = '';
-    if (!isEdit) label = `<div class="form-label">💬 ${isChild ? '여기에 댓글 달기' : '＋ 새 카드 작성'}</div>`;
+    const tag = getTag(comment.tag);
+    const replies = allComments.filter(c=>c.parentId===comment.id).sort((a,b)=>a.createdAt-b.createdAt);
+    const replyClass = depth>0?'reply':'';
+    const replyingHere = activeReplyTo && activeReplyTo.memoId===memoId && activeReplyTo.parentId===comment.id;
 
     return `
-      ${label}
-      <div class="card-form ${isChild ? 'child-form' : ''}" data-form-id="${fid}" style="background:${bg}">
+      <div class="comment ${replyClass}">
+        <div class="comment-header">
+          <div class="comment-meta">
+            <span class="tag-badge ${tag.class}">${tag.label}</span>
+            <span class="comment-author">${escapeHtml(comment.author||'익명')}</span>
+            <span class="comment-time">${formatDate(comment.createdAt)}${comment.editedAt?' ·수정':''}</span>
+          </div>
+          <div class="actions">
+            <button class="icon-btn" onclick="startEditComment('${memoId}','${comment.id}')" title="수정">✎</button>
+            <button class="icon-btn" onclick="deleteComment('${memoId}','${comment.id}')" title="삭제">✕</button>
+          </div>
+        </div>
+        <div class="comment-content">${escapeHtml(comment.text)}</div>
+        ${comment.image?`<div class="comment-image"><img src="${comment.image}" onclick="openLightbox('${comment.image}')" alt="첨부 사진"></div>`:''}
+        <button class="reply-btn" onclick="startReply('${memoId}','${comment.id}')">💬 답글 달기</button>
+      </div>
+      ${replies.map(r=>renderComment(memoId, r, allComments, depth+1)).join('')}
+      ${replyingHere ? renderCommentForm(memoId, comment.id) : ''}`;
+  }
+
+  function renderCommentForm(memoId, parentId, editingComment){
+    const isEdit = !!editingComment;
+    const fid = isEdit ? `editform-${memoId}-${editingComment.id}` : `form-${memoId}-${parentId||'memo'}`;
+    const isReply = parentId!==null && parentId!==undefined;
+    const saved = formState[fid] || (isEdit ? { author:editingComment.author, text:editingComment.text, tag:editingComment.tag, image:editingComment.image||null } : {});
+    if(!formState[fid]) formState[fid]=saved;
+    const imgPreview = saved.image ? `<div class="img-preview-wrap"><img src="${saved.image}"><button type="button" class="img-remove-btn" onclick="removeFormImage('${fid}')">✕</button></div>` : '';
+    const tagOptions = Object.entries(TAGS).map(([k,t])=>`<button class="tag-btn ${saved.tag===k?'active':''}" data-tag="${k}" onclick="selectFormTag('${fid}','${k}')">${t.label}</button>`).join('');
+
+    return `
+      <div class="comment-form ${isReply?'reply-form':''}" data-form-id="${fid}">
         <div class="form-row-top">
-          <input class="author-input" type="text" placeholder="작성자명" data-field="author" value="${escapeHtml(saved.author || '')}">
+          <input class="author-input" type="text" placeholder="작성자명" data-field="author" value="${escapeHtml(saved.author||'')}">
           <div class="tag-selector">${tagOptions}</div>
         </div>
-        <div class="cat-selector"><span class="cat-selector-label">영역</span>${catOptions}</div>
-        <textarea data-field="content" placeholder="내용을 입력하세요.">${escapeHtml(saved.content || '')}</textarea>
+        <textarea data-field="text" placeholder="${isReply?'답글을 입력하세요...':'의견을 입력하세요.'}">${escapeHtml(saved.text||'')}</textarea>
         <div class="img-attach-row">
           <button type="button" class="img-attach-btn" onclick="this.parentNode.querySelector('input[type=file]').click()">📷 사진</button>
           <input type="file" accept="image/*" style="display:none" onchange="handleFormImage('${fid}', event)">
           ${imgPreview}
         </div>
         <div class="form-row-bottom">
-          <span class="form-hint">${isEdit ? '수정 중' : '영역과 유형 태그를 선택해주세요'}</span>
+          <span class="form-hint">${isEdit?'수정 중':'유형 태그를 선택해주세요'}</span>
           <div class="form-buttons">
-            ${isEdit ? `<button class="cancel-btn" onclick="cancelEdit()">취소</button>` : ''}
-            <button class="submit-btn" onclick="${isEdit ? `submitEdit('${editingCardObj.id}','${fid}')` : `submitCard(${parentId ? `'${parentId}'` : 'null'},'${fid}')`}">${isEdit ? '수정 완료' : '등록'}</button>
+            <button class="cancel-btn" onclick="${isEdit?'cancelEditComment()':'cancelReply()'}">취소</button>
+            <button class="submit-btn" onclick="${isEdit?`submitEditComment('${memoId}','${editingComment.id}','${fid}')`:`submitComment('${memoId}',${parentId?`'${parentId}'`:'null'},'${fid}')`}">${isEdit?'수정 완료':'등록'}</button>
           </div>
         </div>
-      </div>
-    `;
+      </div>`;
   }
 
-  function bindFormListeners() {
-    document.querySelectorAll('[data-form-id]').forEach(form => {
-      const fid = form.dataset.formId;
-      form.querySelectorAll('input[data-field], textarea[data-field]').forEach(el => {
-        el.addEventListener('input', () => {
-          if (!formState[fid]) formState[fid] = {};
-          formState[fid][el.dataset.field] = el.value;
-        });
+  function bindFormListeners(){
+    document.querySelectorAll('[data-form-id]').forEach(form=>{
+      const fid=form.dataset.formId;
+      form.querySelectorAll('input[data-field],textarea[data-field]').forEach(el=>{
+        el.addEventListener('input',()=>{ if(!formState[fid])formState[fid]={}; formState[fid][el.dataset.field]=el.value; });
       });
     });
   }
 
-  window.selectFormTag = function(fid, tag) {
-    captureFormInputs();
-    if (!formState[fid]) formState[fid] = {};
-    formState[fid].tag = tag;
-    const form = document.querySelector(`[data-form-id="${fid}"]`);
-    if (form) form.querySelectorAll('.tag-btn').forEach(b => b.classList.toggle('active', b.dataset.tag === tag));
+  window.selectFormTag = function(fid, tag){
+    captureFormInputs(); if(!formState[fid])formState[fid]={}; formState[fid].tag=tag;
+    const form=document.querySelector(`[data-form-id="${fid}"]`);
+    if(form) form.querySelectorAll('.tag-btn').forEach(b=>b.classList.toggle('active', b.dataset.tag===tag));
   };
 
-  window.selectFormCategory = function(fid, cat) {
-    captureFormInputs();
-    if (!formState[fid]) formState[fid] = {};
-    formState[fid].category = cat;
-    const form = document.querySelector(`[data-form-id="${fid}"]`);
-    if (form) {
-      form.style.background = categoryColor(cat);
-      form.querySelectorAll('.cat-btn').forEach(b => {
-        const on = b.dataset.cat === cat;
-        b.classList.toggle('active', on);
-        b.style.background = on ? categoryColor(b.dataset.cat) : '';
-        b.style.borderColor = on ? 'rgba(0,0,0,0.35)' : '';
-      });
-    }
-  };
+  /* 댓글 작성 흐름 */
+  window.startReply = function(memoId, parentId){ captureFormInputs(); activeReplyTo={memoId, parentId:parentId||null}; activeEditComment=null; renderBoard(); };
+  window.cancelReply = function(){ if(activeReplyTo){ const fid=`form-${activeReplyTo.memoId}-${activeReplyTo.parentId||'memo'}`; delete formState[fid]; } activeReplyTo=null; renderBoard(); };
+  window.startEditComment = function(memoId, commentId){ captureFormInputs(); activeEditComment={memoId, commentId}; renderBoard(); };
+  window.cancelEditComment = function(){ if(activeEditComment){ delete formState[`editform-${activeEditComment.memoId}-${activeEditComment.commentId}`]; } activeEditComment=null; renderBoard(); };
 
-  /* ---------- 사진 ---------- */
-  function compressImage(file, maxSize, quality) {
-    return new Promise((resolve, reject) => {
-      if (!file.type.startsWith('image/')) { reject(new Error('이미지 파일이 아닙니다.')); return; }
-      const reader = new FileReader();
-      reader.onload = e => {
-        const img = new Image();
-        img.onload = () => {
-          let { width, height } = img;
-          if (width > height && width > maxSize) { height = Math.round(height*maxSize/width); width = maxSize; }
-          else if (height > maxSize) { width = Math.round(width*maxSize/height); height = maxSize; }
-          const canvas = document.createElement('canvas');
-          canvas.width = width; canvas.height = height;
-          canvas.getContext('2d').drawImage(img, 0, 0, width, height);
-          let result = canvas.toDataURL('image/jpeg', quality), q = quality;
-          while (result.length > 700000 && q > 0.3) { q -= 0.15; result = canvas.toDataURL('image/jpeg', q); }
-          resolve(result);
+  /* 사진 압축 */
+  function compressImage(file, maxSize, quality){
+    return new Promise((resolve,reject)=>{
+      if(!file.type.startsWith('image/')){ reject(new Error('이미지 파일이 아닙니다.')); return; }
+      const reader=new FileReader();
+      reader.onload=e=>{ const img=new Image();
+        img.onload=()=>{ let{width,height}=img;
+          if(width>height&&width>maxSize){height=Math.round(height*maxSize/width);width=maxSize;}
+          else if(height>maxSize){width=Math.round(width*maxSize/height);height=maxSize;}
+          const c=document.createElement('canvas');c.width=width;c.height=height;c.getContext('2d').drawImage(img,0,0,width,height);
+          let r=c.toDataURL('image/jpeg',quality),q=quality;
+          while(r.length>700000&&q>0.3){q-=0.15;r=c.toDataURL('image/jpeg',q);}
+          resolve(r);
         };
-        img.onerror = () => reject(new Error('이미지를 불러올 수 없습니다.'));
-        img.src = e.target.result;
+        img.onerror=()=>reject(new Error('이미지를 불러올 수 없습니다.')); img.src=e.target.result;
       };
-      reader.onerror = () => reject(new Error('파일을 읽을 수 없습니다.'));
-      reader.readAsDataURL(file);
+      reader.onerror=()=>reject(new Error('파일을 읽을 수 없습니다.')); reader.readAsDataURL(file);
     });
   }
-
-  window.handleFormImage = async function(fid, event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    captureFormInputs();
-    try {
-      const data = await compressImage(file, 1000, 0.7);
-      if (!formState[fid]) formState[fid] = {};
-      formState[fid].image = data;
-      renderBoard();
-    } catch (err) { alert('사진 처리 실패: ' + err.message); }
-    event.target.value = '';
+  window.handleFormImage = async function(fid, event){
+    const file=event.target.files[0]; if(!file)return; captureFormInputs();
+    try{ const data=await compressImage(file,1000,0.7); if(!formState[fid])formState[fid]={}; formState[fid].image=data; renderBoard(); }
+    catch(err){ alert('사진 처리 실패: '+err.message); }
+    event.target.value='';
   };
-  window.removeFormImage = function(fid) { captureFormInputs(); if (formState[fid]) formState[fid].image = null; renderBoard(); };
-  window.openLightbox = function(src) { document.getElementById('imgLightboxImg').src = src; document.getElementById('imgLightbox').classList.add('active'); };
-  document.getElementById('imgLightbox').addEventListener('click', function(){ this.classList.remove('active'); });
+  window.removeFormImage = function(fid){ captureFormInputs(); if(formState[fid])formState[fid].image=null; renderBoard(); };
+  window.openLightbox = function(src){ document.getElementById('imgLightboxImg').src=src; document.getElementById('imgLightbox').classList.add('active'); };
+  document.getElementById('imgLightbox').addEventListener('click',function(){ this.classList.remove('active'); });
 
-  /* ---------- 카드 저장 ---------- */
-  window.submitCard = function(parentId, fid) {
-    captureFormInputs();
-    const s = formState[fid] || {};
-    const hasText = s.content && s.content.trim();
-    if (!hasText && !s.image) { alert('내용을 입력하거나 사진을 첨부해주세요.'); return; }
-    if (!s.category) { alert('영역을 선택해주세요. (자율활동/진로활동 등)'); return; }
-    if (!s.tag) { alert('유형 태그를 선택해주세요. (질문/해석/보완 중 하나)'); return; }
-    if (!currentStudentId) { alert('먼저 학생 페이지를 선택해주세요.'); return; }
-    const cardsRef = ref(db, `students/${currentStudentId}/cards`);
-    const newRef = push(cardsRef);
-    set(newRef, {
-      author: (s.author || '').trim(),
-      content: hasText ? s.content.trim() : '',
-      tag: s.tag,
-      category: s.category,
-      color: categoryColor(s.category),
-      image: s.image || null,
-      parentId: parentId,
-      createdAt: Date.now()
-    });
-    delete formState[fid];
-    renderBoard();
+  /* 댓글 저장 */
+  window.submitComment = function(memoId, parentId, fid){
+    captureFormInputs(); const s=formState[fid]||{};
+    const hasText=s.text&&s.text.trim();
+    if(!hasText&&!s.image){ alert('내용을 입력하거나 사진을 첨부해주세요.'); return; }
+    if(!s.tag){ alert('유형 태그를 선택해주세요. (질문/해석/보완 중 하나)'); return; }
+    const cRef=push(ref(db,`students/${currentStudentId}/memos/${memoId}/comments`));
+    set(cRef, { author:(s.author||'').trim(), text:hasText?s.text.trim():'', tag:s.tag, image:s.image||null, parentId:parentId, createdAt:Date.now() });
+    delete formState[fid]; activeReplyTo=null; renderBoard();
+  };
+  window.submitEditComment = function(memoId, commentId, fid){
+    captureFormInputs(); const s=formState[fid]||{};
+    const hasText=s.text&&s.text.trim();
+    if(!hasText&&!s.image){ alert('내용을 입력하거나 사진을 첨부해주세요.'); return; }
+    const u={ author:(s.author||'').trim(), text:hasText?s.text.trim():'', image:s.image||null, editedAt:Date.now() };
+    if(s.tag)u.tag=s.tag;
+    update(ref(db,`students/${currentStudentId}/memos/${memoId}/comments/${commentId}`), u);
+    delete formState[fid]; activeEditComment=null; renderBoard();
+  };
+  window.deleteComment = async function(memoId, commentId){
+    if(!confirm('이 의견을 삭제하시겠습니까? 답글도 함께 삭제됩니다.')) return;
+    const memo=currentMemos()[memoId]; if(!memo) return;
+    const cObj=memo.comments||{};
+    const toDel=new Set([commentId]); let ch=true;
+    while(ch){ ch=false; Object.keys(cObj).forEach(id=>{ const p=cObj[id].parentId; if(p&&toDel.has(p)&&!toDel.has(id)){toDel.add(id);ch=true;} }); }
+    for(const id of toDel) await remove(ref(db,`students/${currentStudentId}/memos/${memoId}/comments/${id}`));
   };
 
-  window.startEditCard = function(cardId) { captureFormInputs(); editingCard = { studentId: currentStudentId, cardId }; renderBoard(); };
-  window.cancelEdit = function() { if (editingCard) delete formState[`editform-${editingCard.cardId}`]; editingCard = null; renderBoard(); };
-
-  window.submitEdit = function(cardId, fid) {
-    captureFormInputs();
-    const s = formState[fid] || {};
-    const hasText = s.content && s.content.trim();
-    if (!hasText && !s.image) { alert('내용을 입력하거나 사진을 첨부해주세요.'); return; }
-    const updates = { author: (s.author || '').trim(), content: hasText ? s.content.trim() : '', image: s.image || null, editedAt: Date.now() };
-    if (s.tag) updates.tag = s.tag;
-    if (s.category) { updates.category = s.category; updates.color = categoryColor(s.category); }
-    update(ref(db, `students/${currentStudentId}/cards/${cardId}`), updates);
-    delete formState[fid];
-    editingCard = null;
-    renderBoard();
+  /* 메모 모달 */
+  window.updateModalColorHint = function(){
+    const cat=document.getElementById('inputCategory').value, color=categoryColor(cat);
+    document.getElementById('modalColorSwatch').style.background=color;
+    document.getElementById('modalColorText').textContent=`${cat} 영역 색상`;
   };
+  document.getElementById('inputCategory').addEventListener('change', window.updateModalColorHint);
 
-  window.deleteCard = async function(cardId) {
-    if (!confirm('이 카드를 삭제하시겠습니까? 이 카드에 달린 댓글도 함께 삭제됩니다.')) return;
-    const cardsObj = currentCards();
-    const toDelete = new Set([cardId]);
-    let changed = true;
-    while (changed) {
-      changed = false;
-      Object.keys(cardsObj).forEach(id => {
-        const p = cardsObj[id].parentId;
-        if (p && toDelete.has(p) && !toDelete.has(id)) { toDelete.add(id); changed = true; }
-      });
+  window.handleMemoImage = async function(event){
+    const file=event.target.files[0]; if(!file)return;
+    try{ modalImageData=await compressImage(file,1000,0.7); renderMemoImagePreview(); }
+    catch(err){ alert('사진 처리 실패: '+err.message); }
+    event.target.value='';
+  };
+  function renderMemoImagePreview(){
+    const w=document.getElementById('inputImagePreview');
+    w.innerHTML = modalImageData ? `<div class="img-preview-wrap"><img src="${modalImageData}"><button type="button" class="img-remove-btn" onclick="removeMemoImage()">✕</button></div>` : '';
+  }
+  window.removeMemoImage = function(){ modalImageData=null; renderMemoImagePreview(); };
+
+  window.openModal = function(){
+    if(!currentStudentId){ alert('먼저 "＋ 새 학생 추가"로 학생 페이지를 만들어주세요.'); return; }
+    editingMemoId=null; modalImageData=null;
+    document.getElementById('modalTitle').textContent='새 메모 작성';
+    document.getElementById('submitMemoBtn').textContent='작성하기';
+    document.getElementById('inputAuthor').value='';
+    document.getElementById('inputCategory').value='자율활동';
+    document.getElementById('inputContent').value='';
+    renderMemoImagePreview(); updateModalColorHint();
+    document.getElementById('modal').classList.add('active');
+  };
+  window.editMemo = function(memoId){
+    const memo=currentMemos()[memoId]; if(!memo)return;
+    editingMemoId=memoId; modalImageData=memo.image||null;
+    document.getElementById('modalTitle').textContent='메모 수정';
+    document.getElementById('submitMemoBtn').textContent='수정 완료';
+    document.getElementById('inputAuthor').value=memo.author||'';
+    document.getElementById('inputCategory').value=memo.category||'자율활동';
+    document.getElementById('inputContent').value=memo.content||'';
+    renderMemoImagePreview(); updateModalColorHint();
+    document.getElementById('modal').classList.add('active');
+  };
+  window.closeModal = function(){ document.getElementById('modal').classList.remove('active'); editingMemoId=null; modalImageData=null; };
+  window.submitMemo = function(){
+    const author=document.getElementById('inputAuthor').value.trim();
+    const category=document.getElementById('inputCategory').value;
+    const content=document.getElementById('inputContent').value.trim();
+    if(!content&&!modalImageData){ alert('내용을 입력하거나 사진을 첨부해주세요.'); return; }
+    const color=categoryColor(category);
+    if(editingMemoId){
+      update(ref(db,`students/${currentStudentId}/memos/${editingMemoId}`), { author, category, content, color, image:modalImageData||null, editedAt:Date.now() });
+    } else {
+      const r=push(ref(db,`students/${currentStudentId}/memos`));
+      set(r, { author, category, content, color, image:modalImageData||null, createdAt:Date.now(), comments:{} });
     }
-    for (const id of toDelete) await remove(ref(db, `students/${currentStudentId}/cards/${id}`));
+    closeModal();
+  };
+  window.deleteMemo = function(memoId){
+    if(!confirm('이 메모를 삭제하시겠습니까? 모든 의견도 함께 삭제됩니다.')) return;
+    remove(ref(db,`students/${currentStudentId}/memos/${memoId}`));
   };
 
-  document.getElementById('addCardBtn').addEventListener('click', () => {
-    if (!currentStudentId) { alert('먼저 "＋ 새 학생 추가"로 학생 페이지를 만들어주세요.'); return; }
-    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-  });
+  document.getElementById('addMemoBtn').addEventListener('click', ()=>window.openModal());
+  document.getElementById('modal').addEventListener('click', function(e){ if(e.target===this) closeModal(); });
   document.getElementById('filterCategory').addEventListener('change', renderBoard);
 
-  /* ---------- 유틸 ---------- */
-  function escapeHtml(text) { if (!text && text !== '') return ''; const d = document.createElement('div'); d.textContent = text; return d.innerHTML; }
-  function formatDate(ts) { const d = new Date(ts); return `${d.getMonth()+1}/${d.getDate()} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`; }
+  function escapeHtml(t){ if(!t&&t!=='')return ''; const d=document.createElement('div'); d.textContent=t; return d.innerHTML; }
+  function formatDate(ts){ const d=new Date(ts); return `${d.getMonth()+1}/${d.getDate()} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`; }
 </script>
 
 </body>
