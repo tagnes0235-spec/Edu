@@ -240,11 +240,9 @@
   <h1>📋 생기부 분석 모임 협업 보드</h1>
   <p class="subtitle">학생 생기부를 미리 읽고 영역별 의견을 공유하는 공간입니다. 의견 하나하나가 독립된 포스트잇으로 붙습니다.</p>
   <div class="legend">
-    <span class="legend-item"><span class="legend-dot" style="background:#7d9fc4"></span>보완 — 추가 자료·해석 제안</span>
     <span class="legend-item"><span class="legend-dot" style="background:#c4a47d"></span>질문 — 모임에서 더 짚어볼 점</span>
-    <span class="legend-item"><span class="legend-dot" style="background:#c47d8a"></span>우려 — 점검·재검토 필요</span>
     <span class="legend-item"><span class="legend-dot" style="background:#9b87b8"></span>해석 — 다른 관점·의미 부여</span>
-    <span class="legend-item"><span class="legend-dot" style="background:#87b896"></span>동의 — 공감·지지</span>
+    <span class="legend-item"><span class="legend-dot" style="background:#7d9fc4"></span>보완 — 추가 자료·해석 제안</span>
   </div>
 </header>
 
@@ -346,12 +344,16 @@
   // 상수
   const COLORS = ['#FFF4B8','#FFD6D6','#D4F0D4','#FFDAB8','#E0D4F0','#C8E6F0','#F5E1C8','#FFFFFF'];
   const TAGS = {
-    suggest:   { label: '💡 보완',  class: 'tag-suggest' },
     question:  { label: '🔍 질문',  class: 'tag-question' },
-    concern:   { label: '⚠️ 우려',  class: 'tag-concern' },
     interpret: { label: '💬 해석',  class: 'tag-interpret' },
-    agree:     { label: '✅ 동의',  class: 'tag-agree' }
+    suggest:   { label: '💡 보완',  class: 'tag-suggest' }
   };
+  // 과거에 작성된 동의/우려 의견도 화면에서 깨지지 않도록 표시용 보조 정의
+  const LEGACY_TAGS = {
+    concern: { label: '⚠️ 우려', class: 'tag-concern' },
+    agree:   { label: '✅ 동의', class: 'tag-agree' }
+  };
+  function getTag(key) { return TAGS[key] || LEGACY_TAGS[key] || TAGS.question; }
 
   // 상태
   let selectedColor = COLORS[0];
@@ -467,10 +469,8 @@
   function renderNoteGroup(note) {
     const topComments = (note.comments || []).filter(c => !c.parentId).sort((a,b)=>a.createdAt-b.createdAt);
     const commentsHtml = topComments.map(c => renderCommentPostit(note.id, c, note.comments)).join('');
-    const showAddForm = activeAddComment === note.id;
-    const addCommentArea = showAddForm
-      ? renderCommentForm(note.id, null)
-      : `<button class="add-comment-btn" onclick="startAddComment('${note.id}')">＋ 의견 포스트잇 추가</button>`;
+    // 의견 입력칸을 항상 펼쳐 두어 바로 작성할 수 있게 함
+    const addCommentArea = renderCommentForm(note.id, null);
     return `<div class="note-group">${renderRootPostit(note)}${commentsHtml}${addCommentArea}</div>`;
   }
 
@@ -497,7 +497,7 @@
     const isReplyingHere = activeReplyTo && activeReplyTo.noteId === noteId && activeReplyTo.parentId === comment.id;
     if (isEditing) return renderCommentForm(noteId, comment.parentId, comment);
 
-    const tag = TAGS[comment.tag] || TAGS.agree;
+    const tag = getTag(comment.tag);
     const replies = allComments.filter(c => c.parentId === comment.id).sort((a,b)=>a.createdAt-b.createdAt);
 
     let replyToBadge = '';
@@ -544,6 +544,7 @@
     `).join('');
 
     return `
+      ${(!isEdit && !isReply) ? '<div style="font-size:11px; font-weight:700; color:rgba(0,0,0,0.45); margin:6px 2px 4px;">＋ 이 메모에 의견 달기</div>' : ''}
       <div class="comment-form-postit ${isReply ? 'reply-form' : ''}" data-form-id="${formId}" style="background: ${saved.color}">
         <div class="form-row-top">
           <input class="author-input" type="text" placeholder="작성자명" data-field="author" value="${escapeHtml(saved.author || '')}">
@@ -556,11 +557,11 @@
         <div class="form-color-picker">
           <span class="form-color-picker-label">색상</span>${colorOptions}
         </div>
-        <textarea data-field="text" placeholder="${isEdit ? '' : (isReply ? '답글을 입력하세요...' : '의견을 입력하세요. 단순 동의보다 근거·예시·다른 시각을 함께 적어주세요.')}">${escapeHtml(saved.text || '')}</textarea>
+        <textarea data-field="text" placeholder="${isEdit ? '' : (isReply ? '답글을 입력하세요...' : '의견을 입력하세요. 근거·예시·다른 시각을 함께 적어주세요.')}">${escapeHtml(saved.text || '')}</textarea>
         <div class="form-row-bottom">
           <span class="form-hint">${isEdit ? '수정 중' : '유형 태그와 색상을 선택해주세요'}</span>
           <div class="form-buttons">
-            <button class="cancel-btn" onclick="${isEdit ? 'cancelEditComment()' : (isReply ? 'cancelReply()' : 'cancelAddComment()')}">취소</button>
+            ${(isEdit || isReply) ? `<button class="cancel-btn" onclick="${isEdit ? 'cancelEditComment()' : 'cancelReply()'}">취소</button>` : ''}
             <button class="submit-btn" onclick="${isEdit
               ? `submitEditComment('${noteId}', '${editingComment.id}', '${formId}')`
               : `submitComment('${noteId}', ${parentId ? `'${parentId}'` : 'null'}, '${formId}')`
@@ -618,7 +619,7 @@
     captureFormInputs();
     const state = formState[formId] || {};
     if (!state.text || !state.text.trim()) { alert('의견 내용을 입력해주세요.'); return; }
-    if (!state.tag) { alert('의견 유형 태그를 선택해주세요. (보완/질문/우려/해석/동의 중 하나)'); return; }
+    if (!state.tag) { alert('의견 유형 태그를 선택해주세요. (질문/해석/보완 중 하나)'); return; }
     const commentId = 'c_' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
     const commentData = {
       author: (state.author || '').trim(),
