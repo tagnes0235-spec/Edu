@@ -123,7 +123,7 @@
   .postit { border-radius: 12px; padding: 14px 16px; box-shadow: 0 4px 12px rgba(70, 100, 140, 0.13); position: relative; word-break: break-word; }
   .postit.root { margin-bottom: 12px; padding: 18px; box-shadow: 0 6px 18px rgba(70, 100, 140, 0.18); min-height: 160px; }
   .postit.comment { margin-bottom: 10px; font-size: 13px; }
-  .postit.reply { margin-left: 24px; position: relative; }
+  .postit.reply { margin-left: 16px; position: relative; }
   .postit.reply::before { content: ''; position: absolute; left: -16px; top: -10px; width: 12px; height: 24px; border-left: 2px dashed rgba(90, 139, 191, 0.4); border-bottom: 2px dashed rgba(90, 139, 191, 0.4); border-bottom-left-radius: 8px; }
 
   .postit-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; gap: 8px; }
@@ -173,7 +173,7 @@
   .add-comment-btn:hover { background: rgba(255, 255, 255, 0.8); border-color: #5a8bbf; border-style: solid; }
 
   .comment-form-postit { border-radius: 12px; padding: 12px; margin-bottom: 10px; box-shadow: 0 4px 12px rgba(70, 100, 140, 0.15); border: 2px solid rgba(90, 139, 191, 0.4); }
-  .comment-form-postit.reply-form { margin-left: 24px; position: relative; }
+  .comment-form-postit.reply-form { margin-left: 16px; position: relative; }
   .comment-form-postit.reply-form::before { content: ''; position: absolute; left: -16px; top: -10px; width: 12px; height: 24px; border-left: 2px dashed rgba(90, 139, 191, 0.4); border-bottom: 2px dashed rgba(90, 139, 191, 0.4); border-bottom-left-radius: 8px; }
 
   .form-row-top { display: flex; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; align-items: center; }
@@ -520,22 +520,19 @@
       </div>`;
   }
 
-  function renderCommentPostit(noteId, comment, allComments) {
+  function renderCommentPostit(noteId, comment, allComments, depth) {
+    depth = depth || 0;
     const isEditing = activeEditComment && activeEditComment.noteId === noteId && activeEditComment.commentId === comment.id;
-    const isReplyingHere = activeReplyTo && activeReplyTo.noteId === noteId && activeReplyTo.parentId === comment.id;
     if (isEditing) return renderCommentForm(noteId, comment.parentId, comment);
 
     const tag = getTag(comment.tag);
     const replies = allComments.filter(c => c.parentId === comment.id).sort((a,b)=>a.createdAt-b.createdAt);
 
-    let replyToBadge = '';
-    if (comment.parentId) {
-      const parent = allComments.find(c => c.id === comment.parentId);
-      if (parent) replyToBadge = `<span class="reply-to">↳ ${escapeHtml(parent.author || '익명')} 의견에 답글</span>`;
-    }
+    // 들여쓰기는 일정 깊이까지만 (너무 좁아지지 않게)
+    const indentClass = depth > 0 ? 'reply' : '';
 
     return `
-      <div class="postit comment ${comment.parentId ? 'reply' : ''}" style="background: ${comment.color}">
+      <div class="postit comment ${indentClass}" style="background: ${comment.color}">
         <div class="postit-header">
           <div class="postit-meta">
             <span class="comment-tag ${tag.class}">${tag.label}</span>
@@ -547,15 +544,11 @@
             <button class="icon-btn" onclick="deleteComment('${noteId}', '${comment.id}')" title="삭제">✕</button>
           </div>
         </div>
-        ${replyToBadge}
         <div class="postit-content">${escapeHtml(comment.text)}</div>
         ${comment.image ? `<div class="postit-image"><img src="${comment.image}" onclick="openLightbox('${comment.image}')" alt="첨부 사진"></div>` : ''}
-        <div class="postit-footer">
-          <button class="action-link" onclick="startReply('${noteId}', '${comment.id}')">💬 답글 달기</button>
-        </div>
       </div>
-      ${replies.map(r => renderCommentPostit(noteId, r, allComments)).join('')}
-      ${isReplyingHere ? renderCommentForm(noteId, comment.id) : ''}`;
+      ${renderCommentForm(noteId, comment.id)}
+      ${replies.map(r => renderCommentPostit(noteId, r, allComments, depth + 1)).join('')}`;
   }
 
   function renderCommentForm(noteId, parentId, editingComment) {
@@ -577,7 +570,7 @@
       : '';
 
     return `
-      ${(!isEdit && !isReply) ? '<div style="font-size:11px; font-weight:700; color:rgba(0,0,0,0.45); margin:6px 2px 4px;">＋ 이 메모에 의견 달기</div>' : ''}
+      ${!isEdit ? `<div style="font-size:11px; font-weight:700; color:rgba(0,0,0,0.42); margin:6px 2px 4px;">💬 ${isReply ? '여기에 댓글 달기' : '이 메모에 댓글 달기'}</div>` : ''}
       <div class="comment-form-postit ${isReply ? 'reply-form' : ''}" data-form-id="${formId}" style="background: ${saved.color}">
         <div class="form-row-top">
           <input class="author-input" type="text" placeholder="작성자명" data-field="author" value="${escapeHtml(saved.author || '')}">
@@ -590,7 +583,7 @@
         <div class="form-color-picker">
           <span class="form-color-picker-label">색상</span>${colorOptions}
         </div>
-        <textarea data-field="text" placeholder="${isEdit ? '' : (isReply ? '답글을 입력하세요...' : '의견을 입력하세요. 근거·예시·다른 시각을 함께 적어주세요.')}">${escapeHtml(saved.text || '')}</textarea>
+        <textarea data-field="text" placeholder="${isEdit ? '' : '댓글을 입력하세요. 근거·예시·다른 시각을 함께 적어주세요.'}">${escapeHtml(saved.text || '')}</textarea>
         <div class="img-attach-row" style="margin-top:8px;">
           <button type="button" class="img-attach-btn" onclick="this.parentNode.querySelector('input[type=file]').click()">📷 사진</button>
           <input type="file" accept="image/*" style="display:none" onchange="handleCommentImage('${formId}', event)">
@@ -599,7 +592,7 @@
         <div class="form-row-bottom">
           <span class="form-hint">${isEdit ? '수정 중' : '유형 태그와 색상을 선택해주세요'}</span>
           <div class="form-buttons">
-            ${(isEdit || isReply) ? `<button class="cancel-btn" onclick="${isEdit ? 'cancelEditComment()' : 'cancelReply()'}">취소</button>` : ''}
+            ${isEdit ? `<button class="cancel-btn" onclick="cancelEditComment()">취소</button>` : ''}
             <button class="submit-btn" onclick="${isEdit
               ? `submitEditComment('${noteId}', '${editingComment.id}', '${formId}')`
               : `submitComment('${noteId}', ${parentId ? `'${parentId}'` : 'null'}, '${formId}')`
@@ -692,6 +685,7 @@
     set(ref(db, `notes/${noteId}/comments/${commentId}`), commentData);
     delete formState[formId];
     activeReplyTo = null; activeAddComment = null;
+    renderBoard();
   };
 
   window.submitEditComment = function(noteId, commentId, formId) {
