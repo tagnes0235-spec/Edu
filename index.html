@@ -6,231 +6,115 @@
 <title>생기부 분석 모임 협업 보드</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Malgun Gothic', '맑은 고딕', -apple-system, sans-serif; background-color: #DCE7F2; min-height: 100vh; padding: 24px; color: #2c3e50; }
 
-  body {
-    font-family: 'Malgun Gothic', '맑은 고딕', -apple-system, sans-serif;
-    background-color: #DCE7F2;
-    min-height: 100vh;
-    padding: 24px;
-    color: #2c3e50;
-  }
-
-  /* ===== 비밀번호 잠금 화면 ===== */
-  .lock-screen {
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: #DCE7F2;
-    z-index: 2000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-  }
-  .lock-box {
-    background: white;
-    border-radius: 18px;
-    padding: 40px 36px;
-    box-shadow: 0 12px 40px rgba(70, 100, 140, 0.18);
-    width: 100%;
-    max-width: 380px;
-    text-align: center;
-  }
+  /* 비밀번호 잠금 */
+  .lock-screen { position: fixed; inset: 0; background: #DCE7F2; z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+  .lock-box { background: white; border-radius: 18px; padding: 40px 36px; box-shadow: 0 12px 40px rgba(70,100,140,0.18); width: 100%; max-width: 380px; text-align: center; }
   .lock-box .lock-icon { font-size: 40px; margin-bottom: 14px; }
   .lock-box h2 { font-size: 19px; color: #34495e; margin-bottom: 8px; }
   .lock-box p { font-size: 13px; color: #6c7a89; margin-bottom: 22px; line-height: 1.5; }
-  .lock-box input {
-    width: 100%;
-    padding: 12px 14px;
-    border: 1px solid #d0dae6;
-    border-radius: 10px;
-    font-size: 15px;
-    text-align: center;
-    background: #f7fafd;
-    margin-bottom: 12px;
-  }
+  .lock-box input { width: 100%; padding: 12px 14px; border: 1px solid #d0dae6; border-radius: 10px; font-size: 15px; text-align: center; background: #f7fafd; margin-bottom: 12px; }
   .lock-box input:focus { outline: none; border-color: #5a8bbf; background: white; }
-  .lock-box button {
-    width: 100%;
-    padding: 12px;
-    background: #5a8bbf;
-    color: white;
-    border: none;
-    border-radius: 10px;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-  }
+  .lock-box button { width: 100%; padding: 12px; background: #5a8bbf; color: white; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; }
   .lock-box button:hover { background: #4a7aae; }
   .lock-error { color: #c0392b; font-size: 13px; margin-top: 10px; min-height: 18px; }
 
-  /* ===== 연결 상태 표시 ===== */
-  .conn-status {
-    position: fixed;
-    bottom: 16px; right: 16px;
-    background: white;
-    padding: 8px 14px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-    box-shadow: 0 2px 10px rgba(70, 100, 140, 0.15);
-    z-index: 500;
-    display: flex; align-items: center; gap: 6px;
-  }
+  .conn-status { position: fixed; bottom: 16px; right: 16px; background: white; padding: 8px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; box-shadow: 0 2px 10px rgba(70,100,140,0.15); z-index: 500; display: flex; align-items: center; gap: 6px; }
   .conn-dot { width: 8px; height: 8px; border-radius: 50%; background: #aaa; }
   .conn-dot.online { background: #4caf50; }
   .conn-dot.offline { background: #e57373; }
 
-  header {
-    max-width: 1600px;
-    margin: 0 auto 24px;
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(8px);
-    border-radius: 16px;
-    padding: 20px 28px;
-    box-shadow: 0 2px 12px rgba(70, 100, 140, 0.08);
-  }
-  h1 { font-size: 22px; color: #34495e; margin-bottom: 6px; font-weight: 700; }
+  header { max-width: 1600px; margin: 0 auto 16px; background: rgba(255,255,255,0.7); backdrop-filter: blur(8px); border-radius: 16px; padding: 18px 26px; box-shadow: 0 2px 12px rgba(70,100,140,0.08); }
+  h1 { font-size: 21px; color: #34495e; margin-bottom: 6px; font-weight: 700; }
   .subtitle { font-size: 13px; color: #6c7a89; line-height: 1.5; }
-
-  .legend { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 10px; font-size: 11px; color: rgba(0,0,0,0.55); }
+  .legend { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px; font-size: 11px; color: rgba(0,0,0,0.55); }
   .legend-item { display: flex; align-items: center; gap: 4px; }
   .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
 
-  .toolbar { max-width: 1600px; margin: 0 auto 24px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  /* 학생 탭 */
+  .student-tabs { max-width: 1600px; margin: 0 auto 18px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .student-tab { padding: 9px 18px; border-radius: 12px 12px 0 0; border: none; background: rgba(255,255,255,0.55); color: #5a6b7a; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 8px; }
+  .student-tab:hover { background: rgba(255,255,255,0.85); }
+  .student-tab.active { background: white; color: #34495e; box-shadow: 0 -2px 8px rgba(70,100,140,0.1); }
+  .student-tab .tab-del { font-size: 12px; color: rgba(0,0,0,0.35); padding: 0 2px; border-radius: 4px; }
+  .student-tab .tab-del:hover { color: #c0392b; background: rgba(0,0,0,0.06); }
+  .add-student-btn { padding: 9px 16px; border-radius: 10px; border: 1.5px dashed rgba(90,139,191,0.5); background: rgba(255,255,255,0.5); color: #5a8bbf; font-size: 14px; font-weight: 600; cursor: pointer; }
+  .add-student-btn:hover { background: white; border-style: solid; }
 
-  .btn {
-    padding: 10px 18px; border: none; border-radius: 10px;
-    font-size: 14px; font-weight: 600; cursor: pointer;
-    transition: all 0.2s; background: white; color: #34495e;
-    box-shadow: 0 2px 6px rgba(70, 100, 140, 0.1);
-  }
-  .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(70, 100, 140, 0.15); }
+  .toolbar { max-width: 1600px; margin: 0 auto 20px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .btn { padding: 10px 18px; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; background: white; color: #34495e; box-shadow: 0 2px 6px rgba(70,100,140,0.1); }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(70,100,140,0.15); }
   .btn-primary { background: #5a8bbf; color: white; }
   .btn-primary:hover { background: #4a7aae; }
-
-  .filter-section {
-    margin-left: auto; display: flex; gap: 8px; align-items: center;
-    background: white; padding: 6px 12px; border-radius: 10px;
-    box-shadow: 0 2px 6px rgba(70, 100, 140, 0.1);
-  }
+  .filter-section { margin-left: auto; display: flex; gap: 8px; align-items: center; background: white; padding: 6px 12px; border-radius: 10px; box-shadow: 0 2px 6px rgba(70,100,140,0.1); }
   .filter-section label { font-size: 13px; color: #6c7a89; font-weight: 600; }
   .filter-section select { border: none; background: transparent; font-size: 14px; color: #34495e; cursor: pointer; padding: 4px 8px; font-weight: 600; }
 
-  .board { max-width: 1600px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 24px; }
+  /* 카드 보드 */
+  .board { max-width: 1600px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 22px; align-items: start; }
+  .card-column { background: rgba(255,255,255,0.32); border-radius: 16px; padding: 14px; border: 1px solid rgba(255,255,255,0.6); }
 
-  .note-group { background: rgba(255, 255, 255, 0.35); border-radius: 18px; padding: 16px; border: 1px solid rgba(255, 255, 255, 0.6); }
-
-  .postit { border-radius: 12px; padding: 14px 16px; box-shadow: 0 4px 12px rgba(70, 100, 140, 0.13); position: relative; word-break: break-word; }
-  .postit.root { margin-bottom: 12px; padding: 18px; box-shadow: 0 6px 18px rgba(70, 100, 140, 0.18); min-height: 160px; }
-  .postit.comment { margin-bottom: 10px; font-size: 13px; }
-  .postit.reply { margin-left: 16px; position: relative; }
-  .postit.reply::before { content: ''; position: absolute; left: -16px; top: -10px; width: 12px; height: 24px; border-left: 2px dashed rgba(90, 139, 191, 0.4); border-bottom: 2px dashed rgba(90, 139, 191, 0.4); border-bottom-left-radius: 8px; }
-
-  .postit-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; gap: 8px; }
-  .postit-meta { font-size: 11px; color: rgba(0,0,0,0.55); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-  .postit.root .postit-meta { font-size: 12px; }
-  .postit-author { font-weight: 700; color: rgba(0,0,0,0.78); }
-  .postit-time { color: rgba(0,0,0,0.45); }
-  .postit-actions { display: flex; gap: 2px; }
-
+  /* 카드 (모두 동일한 형태) */
+  .card { border-radius: 12px; padding: 14px 16px; box-shadow: 0 4px 12px rgba(70,100,140,0.13); word-break: break-word; margin-bottom: 10px; }
+  .card.child { margin-left: 16px; position: relative; }
+  .card.child::before { content: ''; position: absolute; left: -16px; top: -10px; width: 12px; height: 22px; border-left: 2px dashed rgba(90,139,191,0.4); border-bottom: 2px dashed rgba(90,139,191,0.4); border-bottom-left-radius: 8px; }
+  .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; gap: 8px; }
+  .card-meta { font-size: 11px; color: rgba(0,0,0,0.55); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .card-author { font-weight: 700; color: rgba(0,0,0,0.78); }
+  .card-time { color: rgba(0,0,0,0.45); }
+  .card-actions { display: flex; gap: 2px; }
   .icon-btn { background: none; border: none; cursor: pointer; font-size: 13px; color: rgba(0,0,0,0.4); padding: 2px 5px; line-height: 1; border-radius: 4px; }
   .icon-btn:hover { color: rgba(0,0,0,0.85); background: rgba(0,0,0,0.08); }
-
-  .note-category { display: inline-block; background: rgba(0,0,0,0.12); color: rgba(0,0,0,0.78); padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; margin-bottom: 10px; }
-
-  .comment-tag { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 8px; color: white; letter-spacing: 0.3px; white-space: nowrap; }
-  .tag-suggest { background: #7d9fc4; }
+  .cat-badge { display: inline-block; background: rgba(0,0,0,0.12); color: rgba(0,0,0,0.78); padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; }
+  .tag-badge { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 8px; color: white; letter-spacing: 0.3px; white-space: nowrap; }
   .tag-question { background: #c4a47d; }
-  .tag-concern { background: #c47d8a; }
   .tag-interpret { background: #9b87b8; }
+  .tag-suggest { background: #7d9fc4; }
+  .tag-concern { background: #c47d8a; }
   .tag-agree { background: #87b896; }
+  .card-content { font-size: 14px; line-height: 1.6; color: rgba(0,0,0,0.85); white-space: pre-wrap; }
+  .card-image { margin-top: 10px; }
+  .card-image img { max-width: 100%; border-radius: 8px; cursor: pointer; display: block; box-shadow: 0 2px 6px rgba(0,0,0,0.12); }
 
-  .postit-content { font-size: 14px; line-height: 1.6; color: rgba(0,0,0,0.85); white-space: pre-wrap; }
-  .postit.comment .postit-content { font-size: 13px; line-height: 1.55; }
-
-  /* 첨부 사진 */
-  .postit-image { margin-top: 10px; }
-  .postit-image img { max-width: 100%; border-radius: 8px; cursor: pointer; display: block; box-shadow: 0 2px 6px rgba(0,0,0,0.12); }
-  .img-attach-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
-  .img-attach-btn { background: rgba(255,255,255,0.85); border: 1px solid rgba(0,0,0,0.15); border-radius: 6px; padding: 5px 10px; font-size: 12px; font-weight: 600; cursor: pointer; color: rgba(0,0,0,0.65); }
-  .img-attach-btn:hover { background: white; border-color: rgba(0,0,0,0.3); }
-  .img-preview-wrap { position: relative; display: inline-block; }
-  .img-preview-wrap img { max-height: 70px; border-radius: 6px; display: block; }
-  .img-remove-btn { position: absolute; top: -7px; right: -7px; background: #c0392b; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; cursor: pointer; line-height: 1; }
-  /* 사진 확대 보기 */
-  .img-lightbox { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 3000; align-items: center; justify-content: center; padding: 30px; cursor: zoom-out; }
-  .img-lightbox.active { display: flex; }
-  .img-lightbox img { max-width: 95%; max-height: 95%; border-radius: 8px; }
-
-  .reply-to { font-size: 10px; color: rgba(0,0,0,0.5); background: rgba(0,0,0,0.06); padding: 2px 8px; border-radius: 6px; margin-bottom: 6px; display: inline-block; }
-
-  .postit-footer { display: flex; gap: 8px; margin-top: 8px; padding-top: 6px; border-top: 1px dashed rgba(0,0,0,0.12); }
-  .postit.root .postit-footer { margin-top: 12px; padding-top: 10px; }
-  .action-link { background: rgba(90,139,191,0.12); border: 1px solid rgba(90,139,191,0.4); cursor: pointer; font-size: 12px; color: #4a7aae; padding: 6px 14px; font-weight: 700; border-radius: 8px; transition: all 0.15s; }
-  .action-link:hover { background: #5a8bbf; color: white; border-color: #5a8bbf; }
-
-  .add-comment-btn { width: 100%; background: rgba(255, 255, 255, 0.55); border: 1.5px dashed rgba(90, 139, 191, 0.5); border-radius: 10px; padding: 10px; cursor: pointer; color: #5a8bbf; font-size: 13px; font-weight: 600; margin-top: 6px; transition: all 0.15s; }
-  .add-comment-btn:hover { background: rgba(255, 255, 255, 0.8); border-color: #5a8bbf; border-style: solid; }
-
-  .comment-form-postit { border-radius: 12px; padding: 12px; margin-bottom: 10px; box-shadow: 0 4px 12px rgba(70, 100, 140, 0.15); border: 2px solid rgba(90, 139, 191, 0.4); }
-  .comment-form-postit.reply-form { margin-left: 16px; position: relative; }
-  .comment-form-postit.reply-form::before { content: ''; position: absolute; left: -16px; top: -10px; width: 12px; height: 24px; border-left: 2px dashed rgba(90, 139, 191, 0.4); border-bottom: 2px dashed rgba(90, 139, 191, 0.4); border-bottom-left-radius: 8px; }
-
+  /* 카드 작성 폼 */
+  .card-form { border-radius: 12px; padding: 12px; margin-bottom: 10px; box-shadow: 0 4px 12px rgba(70,100,140,0.15); border: 2px solid rgba(90,139,191,0.4); }
+  .card-form.child-form { margin-left: 16px; position: relative; }
+  .card-form.child-form::before { content: ''; position: absolute; left: -16px; top: -10px; width: 12px; height: 22px; border-left: 2px dashed rgba(90,139,191,0.4); border-bottom: 2px dashed rgba(90,139,191,0.4); border-bottom-left-radius: 8px; }
+  .form-label { font-size: 11px; font-weight: 700; color: rgba(0,0,0,0.42); margin: 6px 2px 4px; }
   .form-row-top { display: flex; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; align-items: center; }
-  .form-row-top input.author-input { flex: 1; min-width: 100px; border: 1px solid rgba(0,0,0,0.15); background: white; padding: 5px 8px; border-radius: 6px; font-size: 12px; font-family: inherit; }
-
+  .author-input { flex: 1; min-width: 100px; border: 1px solid rgba(0,0,0,0.15); background: white; padding: 5px 8px; border-radius: 6px; font-size: 12px; font-family: inherit; }
   .tag-selector { display: flex; gap: 3px; flex-wrap: wrap; }
   .tag-btn { border: 1.5px solid transparent; background: rgba(255,255,255,0.85); padding: 3px 8px; border-radius: 8px; font-size: 10px; font-weight: 700; cursor: pointer; color: rgba(0,0,0,0.6); transition: all 0.15s; }
   .tag-btn:hover { border-color: rgba(0,0,0,0.3); }
   .tag-btn.active { color: white; }
-  .tag-btn.active[data-tag="suggest"] { background: #7d9fc4; border-color: #7d9fc4; }
   .tag-btn.active[data-tag="question"] { background: #c4a47d; border-color: #c4a47d; }
-  .tag-btn.active[data-tag="concern"] { background: #c47d8a; border-color: #c47d8a; }
   .tag-btn.active[data-tag="interpret"] { background: #9b87b8; border-color: #9b87b8; }
-  .tag-btn.active[data-tag="agree"] { background: #87b896; border-color: #87b896; }
-
-  /* 영역 선택 버튼 */
+  .tag-btn.active[data-tag="suggest"] { background: #7d9fc4; border-color: #7d9fc4; }
   .cat-selector { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; margin-bottom: 8px; padding: 6px 8px; background: rgba(255,255,255,0.5); border-radius: 8px; }
   .cat-selector-label { font-size: 10px; color: rgba(0,0,0,0.55); font-weight: 700; margin-right: 2px; }
   .cat-btn { border: 1.5px solid rgba(0,0,0,0.12); background: rgba(255,255,255,0.85); padding: 3px 9px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; color: rgba(0,0,0,0.6); transition: all 0.15s; }
   .cat-btn:hover { border-color: rgba(0,0,0,0.3); }
   .cat-btn.active { color: rgba(0,0,0,0.8); }
-
-  .form-color-picker { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 8px; padding: 6px 8px; background: rgba(255, 255, 255, 0.5); border-radius: 8px; }
-  .form-color-picker-label { font-size: 10px; color: rgba(0,0,0,0.55); font-weight: 700; margin-right: 4px; align-self: center; }
-  .mini-color { width: 20px; height: 20px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: all 0.15s; }
-  .mini-color:hover { transform: scale(1.15); }
-  .mini-color.selected { border-color: #34495e; transform: scale(1.2); }
-
-  .comment-form-postit textarea { width: 100%; border: 1px solid rgba(0,0,0,0.15); background: white; padding: 8px 10px; border-radius: 6px; font-size: 13px; font-family: inherit; resize: vertical; min-height: 70px; line-height: 1.55; }
-  .comment-form-postit textarea:focus, .comment-form-postit input:focus { outline: none; border-color: rgba(90,139,191,0.6); }
-
+  .card-form textarea { width: 100%; border: 1px solid rgba(0,0,0,0.15); background: white; padding: 8px 10px; border-radius: 6px; font-size: 13px; font-family: inherit; resize: vertical; min-height: 64px; line-height: 1.55; }
+  .card-form textarea:focus, .card-form input:focus { outline: none; border-color: rgba(90,139,191,0.6); }
+  .img-attach-row { display: flex; align-items: center; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+  .img-attach-btn { background: rgba(255,255,255,0.85); border: 1px solid rgba(0,0,0,0.15); border-radius: 6px; padding: 5px 10px; font-size: 12px; font-weight: 600; cursor: pointer; color: rgba(0,0,0,0.65); }
+  .img-attach-btn:hover { background: white; border-color: rgba(0,0,0,0.3); }
+  .img-preview-wrap { position: relative; display: inline-block; }
+  .img-preview-wrap img { max-height: 60px; border-radius: 6px; display: block; }
+  .img-remove-btn { position: absolute; top: -7px; right: -7px; background: #c0392b; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; cursor: pointer; line-height: 1; }
   .form-row-bottom { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; }
   .form-hint { font-size: 10px; color: rgba(0,0,0,0.5); }
   .form-buttons { display: flex; gap: 4px; }
-
   .submit-btn { background: #5a8bbf; color: white; border: none; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; }
   .submit-btn:hover { background: #4a7aae; }
   .cancel-btn { background: transparent; color: rgba(0,0,0,0.55); border: none; padding: 6px 10px; cursor: pointer; font-size: 11px; font-weight: 600; }
-  .cancel-btn:hover { color: rgba(0,0,0,0.85); }
 
-  .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(40,60,90,0.4); backdrop-filter: blur(4px); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
-  .modal-overlay.active { display: flex; }
-  .modal { background: white; border-radius: 16px; padding: 28px; width: 100%; max-width: 520px; box-shadow: 0 12px 40px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
-  .modal h2 { font-size: 18px; margin-bottom: 18px; color: #34495e; }
-
-  .form-group { margin-bottom: 16px; }
-  .form-group label { display: block; font-size: 13px; color: #6c7a89; margin-bottom: 6px; font-weight: 600; }
-  .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 12px; border: 1px solid #d0dae6; border-radius: 8px; font-size: 14px; font-family: inherit; background: #f7fafd; }
-  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #5a8bbf; background: white; }
-  .form-group textarea { min-height: 120px; resize: vertical; line-height: 1.6; }
-
-  .color-picker { display: flex; gap: 10px; flex-wrap: wrap; }
-  .color-option { width: 36px; height: 36px; border-radius: 50%; cursor: pointer; border: 3px solid transparent; transition: all 0.2s; }
-  .color-option:hover { transform: scale(1.1); }
-  .color-option.selected { border-color: #34495e; transform: scale(1.15); }
-
-  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 22px; }
+  /* 사진 확대 */
+  .img-lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 3000; align-items: center; justify-content: center; padding: 30px; cursor: zoom-out; }
+  .img-lightbox.active { display: flex; }
+  .img-lightbox img { max-width: 95%; max-height: 95%; border-radius: 8px; }
 
   .empty-state { grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: #6c7a89; background: rgba(255,255,255,0.5); border-radius: 16px; border: 2px dashed rgba(90,139,191,0.3); }
   .empty-state h3 { font-size: 18px; margin-bottom: 8px; color: #5a8bbf; }
@@ -245,7 +129,6 @@
 </head>
 <body>
 
-<!-- ===== 비밀번호 잠금 화면 ===== -->
 <div class="lock-screen" id="lockScreen">
   <div class="lock-box">
     <div class="lock-icon">🔒</div>
@@ -259,7 +142,7 @@
 
 <header>
   <h1>📋 생기부 분석 모임 협업 보드</h1>
-  <p class="subtitle">학생 생기부를 미리 읽고 영역별 의견을 공유하는 공간입니다. 영역에 따라 포스트잇 색이 정해집니다.</p>
+  <p class="subtitle">학생별로 페이지를 만들어 생기부 영역별 의견을 공유하는 공간입니다. 모든 카드에 자유롭게 댓글을 달 수 있습니다.</p>
   <div class="legend" style="margin-top:8px;">
     <span style="font-size:11px; font-weight:700; color:rgba(0,0,0,0.5); margin-right:4px;">영역별 색:</span>
     <span class="legend-item"><span class="legend-dot" style="background:#FFD6D6"></span>자율활동</span>
@@ -273,21 +156,23 @@
   </div>
   <div class="legend" style="margin-top:6px;">
     <span style="font-size:11px; font-weight:700; color:rgba(0,0,0,0.5); margin-right:4px;">의견 유형:</span>
-    <span class="legend-item">🔍 질문 — 더 짚어볼 점</span>
-    <span class="legend-item">💬 해석 — 다른 관점·의미</span>
-    <span class="legend-item">💡 보완 — 추가 자료·제안</span>
+    <span class="legend-item">🔍 질문</span>
+    <span class="legend-item">💬 해석</span>
+    <span class="legend-item">💡 보완</span>
   </div>
 </header>
 
+<div class="student-tabs" id="studentTabs"></div>
+
 <div class="toolbar">
-  <button class="btn btn-primary" onclick="openModal()">＋ 새 메모 작성</button>
+  <button class="btn btn-primary" id="addCardBtn">＋ 새 카드 작성</button>
   <div class="filter-section">
     <label>영역 필터:</label>
-    <select id="filterCategory" onchange="renderBoard()">
+    <select id="filterCategory">
       <option value="all">전체</option>
       <option value="자율활동">자율활동</option>
-      <option value="동아리활동">동아리활동</option>
       <option value="진로활동">진로활동</option>
+      <option value="동아리활동">동아리활동</option>
       <option value="봉사활동">봉사활동</option>
       <option value="교과세특">교과세특</option>
       <option value="독서활동">독서활동</option>
@@ -304,68 +189,18 @@
   <span id="connText">연결 중...</span>
 </div>
 
-<!-- 사진 확대 보기 -->
-<div class="img-lightbox" id="imgLightbox" onclick="this.classList.remove('active')">
+<div class="img-lightbox" id="imgLightbox">
   <img id="imgLightboxImg" src="" alt="확대 이미지">
 </div>
 
-<!-- 새 메모 작성 모달 -->
-<div class="modal-overlay" id="modal">
-  <div class="modal">
-    <h2 id="modalTitle">새 메모 작성</h2>
-    <div class="form-group">
-      <label>작성자</label>
-      <input type="text" id="inputAuthor" placeholder="성함을 입력하세요 (예: 김ㅇㅇ 선생님)">
-    </div>
-    <div class="form-group">
-      <label>학생 / 영역 <span style="font-weight:400; color:#9aa7b4;">(영역에 따라 색이 자동 지정됩니다)</span></label>
-      <select id="inputCategory" onchange="updateModalColorHint()">
-        <option value="자율활동">자율활동</option>
-        <option value="진로활동">진로활동</option>
-        <option value="동아리활동">동아리활동</option>
-        <option value="봉사활동">봉사활동</option>
-        <option value="교과세특">교과세특</option>
-        <option value="독서활동">독서활동</option>
-        <option value="행동특성">행동특성 및 종합의견</option>
-        <option value="기타">기타</option>
-      </select>
-      <div id="modalColorHint" style="margin-top:8px; display:flex; align-items:center; gap:8px; font-size:12px; color:#6c7a89;">
-        <span id="modalColorSwatch" style="width:18px; height:18px; border-radius:50%; display:inline-block; border:1px solid rgba(0,0,0,0.15);"></span>
-        <span id="modalColorText">이 영역의 색상</span>
-      </div>
-    </div>
-    <div class="form-group">
-      <label>내용</label>
-      <textarea id="inputContent" placeholder="생기부를 읽고 발견한 점, 의견, 질문 등을 자유롭게 작성해주세요."></textarea>
-    </div>
-    <div class="form-group">
-      <label>사진 첨부 (선택)</label>
-      <div class="img-attach-row">
-        <button type="button" class="img-attach-btn" onclick="document.getElementById('inputImageFile').click()">📷 사진 선택</button>
-        <input type="file" id="inputImageFile" accept="image/*" style="display:none" onchange="handleNoteImage(event)">
-        <div id="inputImagePreview"></div>
-      </div>
-    </div>
-    <div class="modal-actions">
-      <button class="btn" onclick="closeModal()">취소</button>
-      <button class="btn btn-primary" id="submitNoteBtn" onclick="submitNote()">작성하기</button>
-    </div>
-  </div>
-</div>
-
-<!-- ===== Firebase SDK ===== -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getDatabase, ref, onValue, set, remove, update, child, get }
+  import { getDatabase, ref, onValue, set, remove, update, push }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
   /* ============================================================
-     ★★★ 여기 두 군데만 바꾸면 됩니다 ★★★
-     ------------------------------------------------------------
-     ① 아래 firebaseConfig 를 Firebase에서 복사한 내용으로 교체
-     ② BOARD_PASSWORD 를 원하는 공용 비밀번호로 교체
+     ★★★ 설정 (이미 입력되어 있습니다) ★★★
      ============================================================ */
-
   const firebaseConfig = {
     apiKey: "AIzaSyBtgUL85OIEYat20W8wGideuf8ln1pLrrE",
     authDomain: "edu-92632.firebaseapp.com",
@@ -376,30 +211,16 @@
     appId: "1:897016569304:web:772fe75213421962c9e6ad",
     measurementId: "G-7YX0GQ6WPC"
   };
-
   const BOARD_PASSWORD = "ys2026";
-
-  /* ============================================================
-     아래부터는 수정할 필요 없습니다.
-     ============================================================ */
+  /* ============================================================ */
 
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
-  const notesRef = ref(db, 'notes');
+  const studentsRef = ref(db, 'students');
 
-  // 상수
-  const COLORS = ['#FFF4B8','#FFD6D6','#D4F0D4','#FFDAB8','#E0D4F0','#C8E6F0','#F5E1C8','#FFFFFF'];
-
-  // 영역별 자동 색상 (영역을 고르면 포스트잇 색이 자동 결정됨)
   const CATEGORY_COLORS = {
-    '자율활동': '#FFD6D6',  // 분홍
-    '진로활동': '#C8E6F0',  // 파랑
-    '동아리활동': '#D4F0D4', // 초록
-    '봉사활동': '#FFDAB8',  // 주황
-    '교과세특': '#FFF4B8',  // 노랑
-    '독서활동': '#E0D4F0',  // 보라
-    '행동특성': '#F5E1C8',  // 베이지
-    '기타': '#FFFFFF'       // 흰색
+    '자율활동': '#FFD6D6', '진로활동': '#C8E6F0', '동아리활동': '#D4F0D4', '봉사활동': '#FFDAB8',
+    '교과세특': '#FFF4B8', '독서활동': '#E0D4F0', '행동특성': '#F5E1C8', '기타': '#FFFFFF'
   };
   const CATEGORY_LIST = ['자율활동','진로활동','동아리활동','봉사활동','교과세특','독서활동','행동특성','기타'];
   function categoryColor(cat) { return CATEGORY_COLORS[cat] || '#FFFFFF'; }
@@ -409,22 +230,16 @@
     interpret: { label: '💬 해석',  class: 'tag-interpret' },
     suggest:   { label: '💡 보완',  class: 'tag-suggest' }
   };
-  // 과거에 작성된 동의/우려 의견도 화면에서 깨지지 않도록 표시용 보조 정의
-  const LEGACY_TAGS = {
-    concern: { label: '⚠️ 우려', class: 'tag-concern' },
-    agree:   { label: '✅ 동의', class: 'tag-agree' }
-  };
+  const LEGACY_TAGS = { concern: { label: '⚠️ 우려', class: 'tag-concern' }, agree: { label: '✅ 동의', class: 'tag-agree' } };
   function getTag(key) { return TAGS[key] || LEGACY_TAGS[key] || TAGS.question; }
 
   // 상태
-  let notes = [];               // 화면용 배열 (Firebase 객체를 배열로 변환)
-  let editingNoteId = null;
-  let activeReplyTo = null;
-  let activeEditComment = null;
-  let activeAddComment = null;
-  let formState = {};
+  let students = {};       // {studentId: {name, createdAt, cards: {cardId: {...}}}}
+  let currentStudentId = null;
+  let editingCard = null;  // {studentId, cardId}
+  let formState = {};      // 폼 임시 상태
 
-  /* ---------- 비밀번호 잠금 ---------- */
+  /* ---------- 비밀번호 ---------- */
   function checkPassword() {
     const input = document.getElementById('passwordInput').value;
     if (input === BOARD_PASSWORD) {
@@ -435,322 +250,241 @@
       document.getElementById('passwordInput').value = '';
     }
   }
-  window.checkPassword = checkPassword;
-
-  // 버튼/엔터키에 직접 연결 (모듈 스코프에서도 확실히 동작)
   document.getElementById('enterBtn').addEventListener('click', checkPassword);
-  document.getElementById('passwordInput').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') checkPassword();
-  });
-
-  // 세션 동안 재입력 생략
+  document.getElementById('passwordInput').addEventListener('keydown', e => { if (e.key === 'Enter') checkPassword(); });
   if (sessionStorage.getItem('board_unlocked') === '1') {
     document.getElementById('lockScreen').style.display = 'none';
   } else {
     document.getElementById('passwordInput').focus();
   }
 
-  /* ---------- Firebase 실시간 구독 ---------- */
-  onValue(notesRef, (snapshot) => {
-    const val = snapshot.val() || {};
-    // 객체 → 배열 변환, comments도 객체 → 배열
-    notes = Object.keys(val).map(noteId => {
-      const n = val[noteId];
-      const commentsObj = n.comments || {};
-      const comments = Object.keys(commentsObj).map(cid => ({
-        id: cid,
-        ...commentsObj[cid],
-        parentId: commentsObj[cid].parentId || null
-      }));
-      return { ...n, id: noteId, comments };
-    });
+  /* ---------- Firebase 구독 ---------- */
+  onValue(studentsRef, (snapshot) => {
+    students = snapshot.val() || {};
     setConn(true);
+    // 현재 선택된 학생이 없거나 삭제됐으면 첫 학생 선택
+    const ids = Object.keys(students);
+    if (!currentStudentId || !students[currentStudentId]) {
+      currentStudentId = ids.length ? ids.sort((a,b)=>students[a].createdAt-students[b].createdAt)[0] : null;
+    }
+    renderTabs();
     renderBoard();
-  }, (error) => {
-    console.error(error);
-    setConn(false);
-  });
+  }, (err) => { console.error(err); setConn(false); });
 
   function setConn(online) {
-    const dot = document.getElementById('connDot');
-    const text = document.getElementById('connText');
+    const dot = document.getElementById('connDot'), text = document.getElementById('connText');
     if (online) { dot.className = 'conn-dot online'; text.textContent = '실시간 연결됨'; }
     else { dot.className = 'conn-dot offline'; text.textContent = '연결 끊김 (새로고침 해보세요)'; }
   }
 
-  /* ---------- 색상 선택기 (모달) ---------- */
+  /* ---------- 학생 탭 ---------- */
+  function renderTabs() {
+    const wrap = document.getElementById('studentTabs');
+    const ids = Object.keys(students).sort((a,b)=>students[a].createdAt-students[b].createdAt);
+    let html = ids.map(id => `
+      <button class="student-tab ${id === currentStudentId ? 'active' : ''}" onclick="selectStudent('${id}')">
+        ${escapeHtml(students[id].name || '이름없음')}
+        <span class="tab-del" onclick="event.stopPropagation(); deleteStudent('${id}')" title="이 학생 페이지 삭제">✕</span>
+      </button>
+    `).join('');
+    html += `<button class="add-student-btn" onclick="addStudent()">＋ 새 학생 추가</button>`;
+    wrap.innerHTML = html;
+  }
+
+  window.selectStudent = function(id) { currentStudentId = id; renderTabs(); renderBoard(); };
+
+  window.addStudent = function() {
+    const name = prompt('새 학생의 이름(또는 구분명)을 입력하세요.\n예: 김ㅇㅇ, 1반 3번 등');
+    if (name === null) return;
+    const trimmed = name.trim();
+    if (!trimmed) { alert('이름을 입력해주세요.'); return; }
+    const newRef = push(studentsRef);
+    set(newRef, { name: trimmed, createdAt: Date.now(), cards: {} }).then(() => {
+      currentStudentId = newRef.key;
+      renderTabs(); renderBoard();
+    });
+  };
+
+  window.deleteStudent = function(id) {
+    const name = students[id] ? (students[id].name || '이 학생') : '이 학생';
+    if (!confirm(`'${name}' 페이지를 삭제하시겠습니까?\n이 학생의 모든 카드가 함께 삭제됩니다.`)) return;
+    remove(ref(db, `students/${id}`));
+  };
+
+  /* ---------- 카드 보드 ---------- */
+  function currentCards() {
+    if (!currentStudentId || !students[currentStudentId]) return {};
+    return students[currentStudentId].cards || {};
+  }
+
   function captureFormInputs() {
     document.querySelectorAll('[data-form-id]').forEach(form => {
-      const formId = form.dataset.formId;
-      if (!formState[formId]) formState[formId] = {};
+      const fid = form.dataset.formId;
+      if (!formState[fid]) formState[fid] = {};
       form.querySelectorAll('input[data-field], textarea[data-field]').forEach(el => {
-        formState[formId][el.dataset.field] = el.value;
+        formState[fid][el.dataset.field] = el.value;
       });
     });
   }
 
-  /* ---------- 렌더링 ---------- */
   function renderBoard() {
     captureFormInputs();
     const board = document.getElementById('board');
-    const filter = document.getElementById('filterCategory').value;
-    const filtered = filter === 'all' ? notes : notes.filter(n => n.category === filter);
 
-    if (filtered.length === 0) {
-      board.innerHTML = `
-        <div class="empty-state">
-          <h3>아직 작성된 메모가 없습니다</h3>
-          <p>＋ 새 메모 작성 버튼을 눌러 첫 의견을 남겨보세요.</p>
-        </div>`;
+    if (!currentStudentId) {
+      board.innerHTML = `<div class="empty-state"><h3>학생 페이지가 없습니다</h3><p>위의 "＋ 새 학생 추가"를 눌러 첫 학생 페이지를 만들어보세요.</p></div>`;
       return;
     }
-    const sorted = [...filtered].sort((a, b) => b.createdAt - a.createdAt);
-    board.innerHTML = sorted.map(note => renderNoteGroup(note)).join('');
+
+    const cardsObj = currentCards();
+    const cards = Object.keys(cardsObj).map(id => ({ id, ...cardsObj[id], parentId: cardsObj[id].parentId || null }));
+    const filter = document.getElementById('filterCategory').value;
+
+    // 최상위 카드 (부모 없음)
+    let roots = cards.filter(c => !c.parentId);
+    if (filter !== 'all') roots = roots.filter(c => c.category === filter);
+    roots.sort((a,b)=>b.createdAt-a.createdAt);
+
+    // 최상위 카드가 없으면, 새 카드 작성 폼만 표시
+    let html = '';
+    if (roots.length === 0) {
+      html += `<div class="card-column">${renderCardForm(null)}</div>`;
+    } else {
+      html += roots.map(root => `<div class="card-column">${renderCardTree(root.id, cards, 0)}${renderCardForm(root.id)}</div>`).join('');
+      // 새 최상위 카드 작성 칸도 항상 하나
+      html += `<div class="card-column">${renderCardForm(null)}</div>`;
+    }
+    board.innerHTML = html;
     bindFormListeners();
   }
 
-  function renderNoteGroup(note) {
-    const topComments = (note.comments || []).filter(c => !c.parentId).sort((a,b)=>a.createdAt-b.createdAt);
-    const commentsHtml = topComments.map(c => renderCommentPostit(note.id, c, note.comments)).join('');
-    // 의견 입력칸을 항상 펼쳐 두어 바로 작성할 수 있게 함
-    const addCommentArea = renderCommentForm(note.id, null);
-    return `<div class="note-group">${renderRootPostit(note)}${commentsHtml}${addCommentArea}</div>`;
-  }
-
-  function renderRootPostit(note) {
-    return `
-      <div class="postit root" style="background: ${note.color}">
-        <div class="postit-header">
-          <div class="postit-meta">
-            <span class="postit-author">${escapeHtml(note.author || '익명')}</span>
-            <span class="postit-time">${formatDate(note.createdAt)}${note.editedAt ? ' (수정됨)' : ''}</span>
-          </div>
-          <div class="postit-actions">
-            <button class="icon-btn" onclick="editNote('${note.id}')" title="수정">✎</button>
-            <button class="icon-btn" onclick="deleteNote('${note.id}')" title="삭제">✕</button>
-          </div>
-        </div>
-        <div class="note-category">${escapeHtml(note.category)}</div>
-        <div class="postit-content">${escapeHtml(note.content)}</div>
-        ${note.image ? `<div class="postit-image"><img src="${note.image}" onclick="openLightbox('${note.image}')" alt="첨부 사진"></div>` : ''}
-      </div>`;
-  }
-
-  function renderCommentPostit(noteId, comment, allComments, depth) {
-    depth = depth || 0;
-    const isEditing = activeEditComment && activeEditComment.noteId === noteId && activeEditComment.commentId === comment.id;
-    if (isEditing) return renderCommentForm(noteId, comment.parentId, comment);
-
-    const tag = getTag(comment.tag);
-    const replies = allComments.filter(c => c.parentId === comment.id).sort((a,b)=>a.createdAt-b.createdAt);
-
-    // 들여쓰기는 일정 깊이까지만 (너무 좁아지지 않게)
-    const indentClass = depth > 0 ? 'reply' : '';
-    // 색상: 영역이 있으면 영역색, 없으면 기존 color
-    const bg = comment.category ? categoryColor(comment.category) : (comment.color || '#FFFFFF');
+  // 카드와 그 자식(댓글)들을 재귀적으로 렌더
+  function renderCardTree(cardId, allCards, depth) {
+    const card = allCards.find(c => c.id === cardId);
+    if (!card) return '';
+    const isEditing = editingCard && editingCard.cardId === cardId && editingCard.studentId === currentStudentId;
+    if (isEditing) {
+      // 수정 폼 + 자식들
+      const children = allCards.filter(c => c.parentId === cardId).sort((a,b)=>a.createdAt-b.createdAt);
+      return renderCardForm(card.parentId, card)
+        + renderCommentArea(cardId, allCards, depth)
+        + children.map(ch => renderCardTree(ch.id, allCards, depth+1)).join('');
+    }
+    const children = allCards.filter(c => c.parentId === cardId).sort((a,b)=>a.createdAt-b.createdAt);
+    const tag = getTag(card.tag);
+    const bg = card.category ? categoryColor(card.category) : '#FFFFFF';
+    const childClass = depth > 0 ? 'child' : '';
 
     return `
-      <div class="postit comment ${indentClass}" style="background: ${bg}">
-        <div class="postit-header">
-          <div class="postit-meta">
-            ${comment.category ? `<span class="note-category">${escapeHtml(comment.category)}</span>` : ''}
-            <span class="comment-tag ${tag.class}">${tag.label}</span>
-            <span class="postit-author">${escapeHtml(comment.author || '익명')}</span>
-            <span class="postit-time">${formatDate(comment.createdAt)}${comment.editedAt ? ' ·수정' : ''}</span>
+      <div class="card ${childClass}" style="background:${bg}">
+        <div class="card-header">
+          <div class="card-meta">
+            ${card.category ? `<span class="cat-badge">${escapeHtml(card.category)}</span>` : ''}
+            <span class="tag-badge ${tag.class}">${tag.label}</span>
+            <span class="card-author">${escapeHtml(card.author || '익명')}</span>
+            <span class="card-time">${formatDate(card.createdAt)}${card.editedAt ? ' ·수정' : ''}</span>
           </div>
-          <div class="postit-actions">
-            <button class="icon-btn" onclick="startEditComment('${noteId}', '${comment.id}')" title="수정">✎</button>
-            <button class="icon-btn" onclick="deleteComment('${noteId}', '${comment.id}')" title="삭제">✕</button>
+          <div class="card-actions">
+            <button class="icon-btn" onclick="startEditCard('${cardId}')" title="수정">✎</button>
+            <button class="icon-btn" onclick="deleteCard('${cardId}')" title="삭제">✕</button>
           </div>
         </div>
-        <div class="postit-content">${escapeHtml(comment.text)}</div>
-        ${comment.image ? `<div class="postit-image"><img src="${comment.image}" onclick="openLightbox('${comment.image}')" alt="첨부 사진"></div>` : ''}
+        <div class="card-content">${escapeHtml(card.content)}</div>
+        ${card.image ? `<div class="card-image"><img src="${card.image}" onclick="openLightbox('${card.image}')" alt="첨부 사진"></div>` : ''}
       </div>
-      ${renderCommentForm(noteId, comment.id)}
-      ${replies.map(r => renderCommentPostit(noteId, r, allComments, depth + 1)).join('')}`;
+      ${renderCardForm(cardId)}
+      ${children.map(ch => renderCardTree(ch.id, allCards, depth+1)).join('')}
+    `;
   }
 
-  function renderCommentForm(noteId, parentId, editingComment) {
-    const isEdit = !!editingComment;
-    const formId = isEdit ? `editform-${noteId}-${editingComment.id}` : `form-${noteId}-${parentId || 'root'}`;
-    const isReply = parentId !== null && parentId !== undefined;
-    const saved = formState[formId] || (isEdit
-      ? { author: editingComment.author, text: editingComment.text, tag: editingComment.tag, category: editingComment.category, image: editingComment.image || null }
-      : {});
-    if (!formState[formId]) formState[formId] = saved;
+  function renderCommentArea(cardId, allCards, depth) { return ''; }
 
-    // 영역에 따라 색 자동 결정 (영역 미선택 시 기본 흰색)
+  // 카드 작성/수정 폼 (parentId=null이면 최상위 새 카드)
+  function renderCardForm(parentId, editingCardObj) {
+    const isEdit = !!editingCardObj;
+    const fid = isEdit ? `editform-${editingCardObj.id}` : `form-${parentId || 'root'}`;
+    const isChild = parentId !== null && parentId !== undefined;
+    const saved = formState[fid] || (isEdit
+      ? { author: editingCardObj.author, content: editingCardObj.content, tag: editingCardObj.tag, category: editingCardObj.category, image: editingCardObj.image || null }
+      : {});
+    if (!formState[fid]) formState[fid] = saved;
     const bg = saved.category ? categoryColor(saved.category) : '#FFFFFF';
 
     const imgPreview = saved.image
-      ? `<div class="img-preview-wrap"><img src="${saved.image}"><button type="button" class="img-remove-btn" onclick="removeCommentImage('${formId}')">✕</button></div>`
+      ? `<div class="img-preview-wrap"><img src="${saved.image}"><button type="button" class="img-remove-btn" onclick="removeFormImage('${fid}')">✕</button></div>`
       : '';
-
-    const categoryOptions = CATEGORY_LIST.map(cat => `
-      <button class="cat-btn ${saved.category === cat ? 'active' : ''}" style="${saved.category === cat ? `background:${categoryColor(cat)};border-color:rgba(0,0,0,0.35);` : ''}" data-cat="${cat}" onclick="selectFormCategory('${formId}', '${cat}')">${cat}</button>
+    const catOptions = CATEGORY_LIST.map(cat => `
+      <button class="cat-btn ${saved.category === cat ? 'active' : ''}" style="${saved.category === cat ? `background:${categoryColor(cat)};border-color:rgba(0,0,0,0.35);` : ''}" data-cat="${cat}" onclick="selectFormCategory('${fid}','${cat}')">${cat}</button>
+    `).join('');
+    const tagOptions = Object.entries(TAGS).map(([k,t]) => `
+      <button class="tag-btn ${saved.tag === k ? 'active' : ''}" data-tag="${k}" onclick="selectFormTag('${fid}','${k}')">${t.label}</button>
     `).join('');
 
+    let label = '';
+    if (!isEdit) label = `<div class="form-label">💬 ${isChild ? '여기에 댓글 달기' : '＋ 새 카드 작성'}</div>`;
+
     return `
-      ${!isEdit ? `<div style="font-size:11px; font-weight:700; color:rgba(0,0,0,0.42); margin:6px 2px 4px;">💬 ${isReply ? '여기에 댓글 달기' : '이 메모에 댓글 달기'}</div>` : ''}
-      <div class="comment-form-postit ${isReply ? 'reply-form' : ''}" data-form-id="${formId}" style="background: ${bg}">
+      ${label}
+      <div class="card-form ${isChild ? 'child-form' : ''}" data-form-id="${fid}" style="background:${bg}">
         <div class="form-row-top">
           <input class="author-input" type="text" placeholder="작성자명" data-field="author" value="${escapeHtml(saved.author || '')}">
-          <div class="tag-selector">
-            ${Object.entries(TAGS).map(([key, t]) => `
-              <button class="tag-btn ${saved.tag === key ? 'active' : ''}" data-tag="${key}" onclick="selectTag('${formId}', '${key}')">${t.label}</button>
-            `).join('')}
-          </div>
+          <div class="tag-selector">${tagOptions}</div>
         </div>
-        <div class="cat-selector">
-          <span class="cat-selector-label">영역</span>${categoryOptions}
-        </div>
-        <textarea data-field="text" placeholder="${isEdit ? '' : '댓글을 입력하세요. 근거·예시·다른 시각을 함께 적어주세요.'}">${escapeHtml(saved.text || '')}</textarea>
-        <div class="img-attach-row" style="margin-top:8px;">
+        <div class="cat-selector"><span class="cat-selector-label">영역</span>${catOptions}</div>
+        <textarea data-field="content" placeholder="내용을 입력하세요.">${escapeHtml(saved.content || '')}</textarea>
+        <div class="img-attach-row">
           <button type="button" class="img-attach-btn" onclick="this.parentNode.querySelector('input[type=file]').click()">📷 사진</button>
-          <input type="file" accept="image/*" style="display:none" onchange="handleCommentImage('${formId}', event)">
+          <input type="file" accept="image/*" style="display:none" onchange="handleFormImage('${fid}', event)">
           ${imgPreview}
         </div>
         <div class="form-row-bottom">
           <span class="form-hint">${isEdit ? '수정 중' : '영역과 유형 태그를 선택해주세요'}</span>
           <div class="form-buttons">
-            ${isEdit ? `<button class="cancel-btn" onclick="cancelEditComment()">취소</button>` : ''}
-            <button class="submit-btn" onclick="${isEdit
-              ? `submitEditComment('${noteId}', '${editingComment.id}', '${formId}')`
-              : `submitComment('${noteId}', ${parentId ? `'${parentId}'` : 'null'}, '${formId}')`
-            }">${isEdit ? '수정 완료' : '등록'}</button>
+            ${isEdit ? `<button class="cancel-btn" onclick="cancelEdit()">취소</button>` : ''}
+            <button class="submit-btn" onclick="${isEdit ? `submitEdit('${editingCardObj.id}','${fid}')` : `submitCard(${parentId ? `'${parentId}'` : 'null'},'${fid}')`}">${isEdit ? '수정 완료' : '등록'}</button>
           </div>
         </div>
-      </div>`;
+      </div>
+    `;
   }
 
   function bindFormListeners() {
     document.querySelectorAll('[data-form-id]').forEach(form => {
-      const formId = form.dataset.formId;
+      const fid = form.dataset.formId;
       form.querySelectorAll('input[data-field], textarea[data-field]').forEach(el => {
         el.addEventListener('input', () => {
-          if (!formState[formId]) formState[formId] = {};
-          formState[formId][el.dataset.field] = el.value;
+          if (!formState[fid]) formState[fid] = {};
+          formState[fid][el.dataset.field] = el.value;
         });
       });
     });
   }
 
-  window.selectTag = function(formId, tag) {
+  window.selectFormTag = function(fid, tag) {
     captureFormInputs();
-    if (!formState[formId]) formState[formId] = {};
-    formState[formId].tag = tag;
-    const form = document.querySelector(`[data-form-id="${formId}"]`);
-    if (form) form.querySelectorAll('.tag-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.tag === tag));
+    if (!formState[fid]) formState[fid] = {};
+    formState[fid].tag = tag;
+    const form = document.querySelector(`[data-form-id="${fid}"]`);
+    if (form) form.querySelectorAll('.tag-btn').forEach(b => b.classList.toggle('active', b.dataset.tag === tag));
   };
 
-  window.selectFormCategory = function(formId, cat) {
+  window.selectFormCategory = function(fid, cat) {
     captureFormInputs();
-    if (!formState[formId]) formState[formId] = {};
-    formState[formId].category = cat;
-    const form = document.querySelector(`[data-form-id="${formId}"]`);
+    if (!formState[fid]) formState[fid] = {};
+    formState[fid].category = cat;
+    const form = document.querySelector(`[data-form-id="${fid}"]`);
     if (form) {
-      const color = categoryColor(cat);
-      form.style.background = color;
-      form.querySelectorAll('.cat-btn').forEach(btn => {
-        const on = btn.dataset.cat === cat;
-        btn.classList.toggle('active', on);
-        btn.style.background = on ? categoryColor(btn.dataset.cat) : '';
-        btn.style.borderColor = on ? 'rgba(0,0,0,0.35)' : '';
+      form.style.background = categoryColor(cat);
+      form.querySelectorAll('.cat-btn').forEach(b => {
+        const on = b.dataset.cat === cat;
+        b.classList.toggle('active', on);
+        b.style.background = on ? categoryColor(b.dataset.cat) : '';
+        b.style.borderColor = on ? 'rgba(0,0,0,0.35)' : '';
       });
     }
   };
 
-  /* ---------- 의견 사진 처리 ---------- */
-  window.handleCommentImage = async function(formId, event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    captureFormInputs();
-    try {
-      const data = await compressImage(file, 1000, 0.7);
-      if (!formState[formId]) formState[formId] = {};
-      formState[formId].image = data;
-      renderBoard();
-    } catch (err) { alert('사진 처리 실패: ' + err.message); }
-    event.target.value = '';
-  };
-
-  window.removeCommentImage = function(formId) {
-    captureFormInputs();
-    if (formState[formId]) formState[formId].image = null;
-    renderBoard();
-  };
-
-  window.startAddComment = function(noteId) { captureFormInputs(); activeAddComment = noteId; activeReplyTo = null; renderBoard(); };
-  window.cancelAddComment = function() { if (activeAddComment) delete formState[`form-${activeAddComment}-root`]; activeAddComment = null; renderBoard(); };
-  window.startReply = function(noteId, parentId) { captureFormInputs(); activeReplyTo = { noteId, parentId }; activeAddComment = null; renderBoard(); };
-  window.cancelReply = function() { if (activeReplyTo) delete formState[`form-${activeReplyTo.noteId}-${activeReplyTo.parentId || 'root'}`]; activeReplyTo = null; renderBoard(); };
-  window.startEditComment = function(noteId, commentId) { captureFormInputs(); activeEditComment = { noteId, commentId }; renderBoard(); };
-  window.cancelEditComment = function() { if (activeEditComment) delete formState[`editform-${activeEditComment.noteId}-${activeEditComment.commentId}`]; activeEditComment = null; renderBoard(); };
-
-  /* ---------- 의견(댓글) 저장 ---------- */
-  window.submitComment = function(noteId, parentId, formId) {
-    captureFormInputs();
-    const state = formState[formId] || {};
-    const hasText = state.text && state.text.trim();
-    if (!hasText && !state.image) { alert('내용을 입력하거나 사진을 첨부해주세요.'); return; }
-    if (!state.category) { alert('영역을 선택해주세요. (자율활동/진로활동 등)'); return; }
-    if (!state.tag) { alert('유형 태그를 선택해주세요. (질문/해석/보완 중 하나)'); return; }
-    const commentId = 'c_' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
-    const commentData = {
-      author: (state.author || '').trim(),
-      text: hasText ? state.text.trim() : '',
-      tag: state.tag,
-      category: state.category,
-      color: categoryColor(state.category),
-      image: state.image || null,
-      parentId: parentId,
-      createdAt: Date.now()
-    };
-    set(ref(db, `notes/${noteId}/comments/${commentId}`), commentData);
-    delete formState[formId];
-    activeReplyTo = null; activeAddComment = null;
-    renderBoard();
-  };
-
-  window.submitEditComment = function(noteId, commentId, formId) {
-    captureFormInputs();
-    const state = formState[formId] || {};
-    const hasText = state.text && state.text.trim();
-    if (!hasText && !state.image) { alert('내용을 입력하거나 사진을 첨부해주세요.'); return; }
-    const updates = {
-      author: (state.author || '').trim(),
-      text: hasText ? state.text.trim() : '',
-      image: state.image || null,
-      editedAt: Date.now()
-    };
-    if (state.tag) updates.tag = state.tag;
-    if (state.category) { updates.category = state.category; updates.color = categoryColor(state.category); }
-    update(ref(db, `notes/${noteId}/comments/${commentId}`), updates);
-    delete formState[formId];
-    activeEditComment = null;
-    renderBoard();
-  };
-
-  window.deleteComment = async function(noteId, commentId) {
-    if (!confirm('이 의견 포스트잇을 삭제하시겠습니까? 답글도 함께 삭제됩니다.')) return;
-    // 자손 댓글까지 찾아서 삭제
-    const note = notes.find(n => n.id === noteId);
-    if (!note) return;
-    const toDelete = new Set([commentId]);
-    let changed = true;
-    while (changed) {
-      changed = false;
-      note.comments.forEach(c => {
-        if (c.parentId && toDelete.has(c.parentId) && !toDelete.has(c.id)) { toDelete.add(c.id); changed = true; }
-      });
-    }
-    for (const cid of toDelete) {
-      await remove(ref(db, `notes/${noteId}/comments/${cid}`));
-    }
-  };
-
-  /* ---------- 사진 압축 유틸 ---------- */
-  // 이미지를 최대 1000px로 줄이고 jpeg로 압축해 data URL(텍스트)로 변환
+  /* ---------- 사진 ---------- */
   function compressImage(file, maxSize, quality) {
     return new Promise((resolve, reject) => {
       if (!file.type.startsWith('image/')) { reject(new Error('이미지 파일이 아닙니다.')); return; }
@@ -759,18 +493,13 @@
         const img = new Image();
         img.onload = () => {
           let { width, height } = img;
-          if (width > height && width > maxSize) { height = Math.round(height * maxSize / width); width = maxSize; }
-          else if (height > maxSize) { width = Math.round(width * maxSize / height); height = maxSize; }
+          if (width > height && width > maxSize) { height = Math.round(height*maxSize/width); width = maxSize; }
+          else if (height > maxSize) { width = Math.round(width*maxSize/height); height = maxSize; }
           const canvas = document.createElement('canvas');
           canvas.width = width; canvas.height = height;
           canvas.getContext('2d').drawImage(img, 0, 0, width, height);
-          let result = canvas.toDataURL('image/jpeg', quality);
-          // 너무 크면 품질을 더 낮춰 재압축
-          let q = quality;
-          while (result.length > 700000 && q > 0.3) {
-            q -= 0.15;
-            result = canvas.toDataURL('image/jpeg', q);
-          }
+          let result = canvas.toDataURL('image/jpeg', quality), q = quality;
+          while (result.length > 700000 && q > 0.3) { q -= 0.15; result = canvas.toDataURL('image/jpeg', q); }
           resolve(result);
         };
         img.onerror = () => reject(new Error('이미지를 불러올 수 없습니다.'));
@@ -781,116 +510,88 @@
     });
   }
 
-  window.openLightbox = function(src) {
-    document.getElementById('imgLightboxImg').src = src;
-    document.getElementById('imgLightbox').classList.add('active');
-  };
-
-  /* ---------- 메모 모달 사진 처리 ---------- */
-  let modalImageData = null; // 현재 모달에 첨부된 사진 (data URL)
-
-  window.handleNoteImage = async function(event) {
+  window.handleFormImage = async function(fid, event) {
     const file = event.target.files[0];
     if (!file) return;
+    captureFormInputs();
     try {
-      modalImageData = await compressImage(file, 1000, 0.7);
-      renderModalImagePreview();
+      const data = await compressImage(file, 1000, 0.7);
+      if (!formState[fid]) formState[fid] = {};
+      formState[fid].image = data;
+      renderBoard();
     } catch (err) { alert('사진 처리 실패: ' + err.message); }
     event.target.value = '';
   };
+  window.removeFormImage = function(fid) { captureFormInputs(); if (formState[fid]) formState[fid].image = null; renderBoard(); };
+  window.openLightbox = function(src) { document.getElementById('imgLightboxImg').src = src; document.getElementById('imgLightbox').classList.add('active'); };
+  document.getElementById('imgLightbox').addEventListener('click', function(){ this.classList.remove('active'); });
 
-  function renderModalImagePreview() {
-    const wrap = document.getElementById('inputImagePreview');
-    if (modalImageData) {
-      wrap.innerHTML = `<div class="img-preview-wrap"><img src="${modalImageData}"><button type="button" class="img-remove-btn" onclick="removeNoteImage()">✕</button></div>`;
-    } else {
-      wrap.innerHTML = '';
-    }
-  }
-
-  window.removeNoteImage = function() { modalImageData = null; renderModalImagePreview(); };
-
-  /* ---------- 메모(루트) 저장 ---------- */
-  // 모달에서 영역에 따라 색상 안내 표시 업데이트
-  window.updateModalColorHint = function() {
-    const cat = document.getElementById('inputCategory').value;
-    const color = categoryColor(cat);
-    document.getElementById('modalColorSwatch').style.background = color;
-    document.getElementById('modalColorText').textContent = `${cat} 영역 색상`;
+  /* ---------- 카드 저장 ---------- */
+  window.submitCard = function(parentId, fid) {
+    captureFormInputs();
+    const s = formState[fid] || {};
+    const hasText = s.content && s.content.trim();
+    if (!hasText && !s.image) { alert('내용을 입력하거나 사진을 첨부해주세요.'); return; }
+    if (!s.category) { alert('영역을 선택해주세요. (자율활동/진로활동 등)'); return; }
+    if (!s.tag) { alert('유형 태그를 선택해주세요. (질문/해석/보완 중 하나)'); return; }
+    if (!currentStudentId) { alert('먼저 학생 페이지를 선택해주세요.'); return; }
+    const cardsRef = ref(db, `students/${currentStudentId}/cards`);
+    const newRef = push(cardsRef);
+    set(newRef, {
+      author: (s.author || '').trim(),
+      content: hasText ? s.content.trim() : '',
+      tag: s.tag,
+      category: s.category,
+      color: categoryColor(s.category),
+      image: s.image || null,
+      parentId: parentId,
+      createdAt: Date.now()
+    });
+    delete formState[fid];
+    renderBoard();
   };
 
-  window.openModal = function() {
-    editingNoteId = null;
-    modalImageData = null;
-    document.getElementById('modalTitle').textContent = '새 메모 작성';
-    document.getElementById('submitNoteBtn').textContent = '작성하기';
-    document.getElementById('inputAuthor').value = '';
-    document.getElementById('inputCategory').value = '자율활동';
-    document.getElementById('inputContent').value = '';
-    renderModalImagePreview();
-    updateModalColorHint();
-    document.getElementById('modal').classList.add('active');
+  window.startEditCard = function(cardId) { captureFormInputs(); editingCard = { studentId: currentStudentId, cardId }; renderBoard(); };
+  window.cancelEdit = function() { if (editingCard) delete formState[`editform-${editingCard.cardId}`]; editingCard = null; renderBoard(); };
+
+  window.submitEdit = function(cardId, fid) {
+    captureFormInputs();
+    const s = formState[fid] || {};
+    const hasText = s.content && s.content.trim();
+    if (!hasText && !s.image) { alert('내용을 입력하거나 사진을 첨부해주세요.'); return; }
+    const updates = { author: (s.author || '').trim(), content: hasText ? s.content.trim() : '', image: s.image || null, editedAt: Date.now() };
+    if (s.tag) updates.tag = s.tag;
+    if (s.category) { updates.category = s.category; updates.color = categoryColor(s.category); }
+    update(ref(db, `students/${currentStudentId}/cards/${cardId}`), updates);
+    delete formState[fid];
+    editingCard = null;
+    renderBoard();
   };
 
-  window.editNote = function(noteId) {
-    const note = notes.find(n => n.id === noteId);
-    if (!note) return;
-    editingNoteId = noteId;
-    modalImageData = note.image || null;
-    document.getElementById('modalTitle').textContent = '메모 수정';
-    document.getElementById('submitNoteBtn').textContent = '수정 완료';
-    document.getElementById('inputAuthor').value = note.author || '';
-    document.getElementById('inputCategory').value = note.category;
-    document.getElementById('inputContent').value = note.content;
-    renderModalImagePreview();
-    updateModalColorHint();
-    document.getElementById('modal').classList.add('active');
-  };
-
-  window.closeModal = function() { document.getElementById('modal').classList.remove('active'); editingNoteId = null; modalImageData = null; };
-
-  window.submitNote = function() {
-    const author = document.getElementById('inputAuthor').value.trim();
-    const category = document.getElementById('inputCategory').value;
-    const content = document.getElementById('inputContent').value.trim();
-    if (!content && !modalImageData) { alert('내용을 입력하거나 사진을 첨부해주세요.'); return; }
-    const color = categoryColor(category);
-
-    if (editingNoteId) {
-      update(ref(db, `notes/${editingNoteId}`), { author, category, content, color, image: modalImageData || null, editedAt: Date.now() });
-    } else {
-      const noteId = 'note_' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
-      set(ref(db, `notes/${noteId}`), {
-        author, category, content,
-        color,
-        image: modalImageData || null,
-        createdAt: Date.now(),
-        comments: {}
+  window.deleteCard = async function(cardId) {
+    if (!confirm('이 카드를 삭제하시겠습니까? 이 카드에 달린 댓글도 함께 삭제됩니다.')) return;
+    const cardsObj = currentCards();
+    const toDelete = new Set([cardId]);
+    let changed = true;
+    while (changed) {
+      changed = false;
+      Object.keys(cardsObj).forEach(id => {
+        const p = cardsObj[id].parentId;
+        if (p && toDelete.has(p) && !toDelete.has(id)) { toDelete.add(id); changed = true; }
       });
     }
-    closeModal();
+    for (const id of toDelete) await remove(ref(db, `students/${currentStudentId}/cards/${id}`));
   };
 
-  window.deleteNote = function(id) {
-    if (!confirm('이 메모를 삭제하시겠습니까? 모든 의견 포스트잇도 함께 삭제됩니다.')) return;
-    remove(ref(db, `notes/${id}`));
-  };
-
-  window.renderBoard = renderBoard; // 필터 select에서 호출
+  document.getElementById('addCardBtn').addEventListener('click', () => {
+    if (!currentStudentId) { alert('먼저 "＋ 새 학생 추가"로 학생 페이지를 만들어주세요.'); return; }
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+  });
+  document.getElementById('filterCategory').addEventListener('change', renderBoard);
 
   /* ---------- 유틸 ---------- */
-  function escapeHtml(text) {
-    if (!text && text !== '') return '';
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-  }
-  function formatDate(ts) {
-    const d = new Date(ts);
-    return `${d.getMonth()+1}/${d.getDate()} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
-  }
-
-  document.getElementById('modal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
+  function escapeHtml(text) { if (!text && text !== '') return ''; const d = document.createElement('div'); d.textContent = text; return d.innerHTML; }
+  function formatDate(ts) { const d = new Date(ts); return `${d.getMonth()+1}/${d.getDate()} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`; }
 </script>
 
 </body>
