@@ -350,7 +350,7 @@
     if (roots.length === 0) {
       html += `<div class="card-column">${renderCardForm(null)}</div>`;
     } else {
-      html += roots.map(root => `<div class="card-column">${renderCardTree(root.id, cards, 0)}${renderCardForm(root.id)}</div>`).join('');
+      html += roots.map(root => `<div class="card-column">${renderCardTree(root.id, cards, 0)}</div>`).join('');
       // 새 최상위 카드 작성 칸도 항상 하나
       html += `<div class="card-column">${renderCardForm(null)}</div>`;
     }
