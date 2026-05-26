@@ -64,6 +64,10 @@
   .memo-image img, .comment-image img { max-width: 100%; border-radius: 8px; cursor: pointer; display: block; box-shadow: 0 2px 6px rgba(0,0,0,0.12); }
 
   /* 댓글 포스트잇 */
+  .comments-wrap { position: relative; padding-left: 18px; }
+  .comments-wrap::before { content: ''; position: absolute; left: 6px; top: -8px; bottom: 18px; width: 2px; background: rgba(90,139,191,0.35); border-radius: 1px; }
+  .comments-wrap > .comment { position: relative; }
+  .comments-wrap > .comment::before { content: ''; position: absolute; left: -12px; top: 20px; width: 12px; height: 2px; background: rgba(90,139,191,0.35); }
   .comment { border-radius: 12px; padding: 12px 14px; box-shadow: 0 4px 12px rgba(70,100,140,0.13); word-break: break-word; margin-bottom: 10px; font-size: 13px; }
   .comment.reply { margin-left: 16px; position: relative; }
   .comment.reply::before { content: ''; position: absolute; left: -16px; top: -10px; width: 12px; height: 22px; border-left: 2px dashed rgba(90,139,191,0.4); border-bottom: 2px dashed rgba(90,139,191,0.4); border-bottom-left-radius: 8px; }
@@ -155,7 +159,7 @@
 </div>
 
 <header>
-  <h1>📋 생기부 분석 모임 협업 보드</h1>
+  <h1>📋 생기부 분석 모임 협업 보드 <span id="roleBadge" style="font-size:12px; font-weight:700; padding:3px 10px; border-radius:10px; vertical-align:middle; margin-left:6px;"></span></h1>
   <p class="subtitle">학생별 페이지에서 생기부 영역별 메모를 올리고, 자유롭게 의견을 나누는 공간입니다.</p>
   <div class="legend" style="margin-top:8px;">
     <span style="font-size:11px; font-weight:700; color:rgba(0,0,0,0.5); margin-right:4px;">영역별 색:</span>
@@ -261,7 +265,8 @@
     appId: "1:897016569304:web:772fe75213421962c9e6ad",
     measurementId: "G-7YX0GQ6WPC"
   };
-  const BOARD_PASSWORD = "ys2026";
+  const BOARD_PASSWORD = "myys1903";    // 일반 (모든 선생님) — 글 작성 가능
+  const ADMIN_PASSWORD = "admin2026";   // 관리자 (선생님·부장님) — 삭제·학생관리 가능
 
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
@@ -286,17 +291,36 @@
   let activeReplyTo = null;      // {memoId, parentId}  parentId=null이면 메모에 직접 댓글
   let activeEditComment = null;  // {memoId, commentId}
   let formState = {};
+  let isAdmin = false;           // 관리자 여부 (삭제·학생관리 권한)
 
   /* 비밀번호 */
   function checkPassword() {
     const v = document.getElementById('passwordInput').value;
-    if (v === BOARD_PASSWORD) { sessionStorage.setItem('board_unlocked','1'); document.getElementById('lockScreen').style.display='none'; }
-    else { document.getElementById('lockError').textContent='비밀번호가 올바르지 않습니다.'; document.getElementById('passwordInput').value=''; }
+    if (v === ADMIN_PASSWORD) {
+      isAdmin = true;
+      sessionStorage.setItem('board_unlocked','1');
+      sessionStorage.setItem('board_admin','1');
+      document.getElementById('lockScreen').style.display='none';
+      renderTabs(); renderBoard();
+    } else if (v === BOARD_PASSWORD) {
+      isAdmin = false;
+      sessionStorage.setItem('board_unlocked','1');
+      sessionStorage.removeItem('board_admin');
+      document.getElementById('lockScreen').style.display='none';
+      renderTabs(); renderBoard();
+    } else {
+      document.getElementById('lockError').textContent='비밀번호가 올바르지 않습니다.';
+      document.getElementById('passwordInput').value='';
+    }
   }
   document.getElementById('enterBtn').addEventListener('click', checkPassword);
   document.getElementById('passwordInput').addEventListener('keydown', e=>{ if(e.key==='Enter') checkPassword(); });
-  if (sessionStorage.getItem('board_unlocked')==='1') document.getElementById('lockScreen').style.display='none';
-  else document.getElementById('passwordInput').focus();
+  if (sessionStorage.getItem('board_unlocked')==='1') {
+    isAdmin = sessionStorage.getItem('board_admin')==='1';
+    document.getElementById('lockScreen').style.display='none';
+  } else {
+    document.getElementById('passwordInput').focus();
+  }
 
   /* Firebase 구독 */
   onValue(studentsRef, (snap)=>{
@@ -318,13 +342,14 @@
     let html = ids.map(id=>`
       <button class="student-tab ${id===currentStudentId?'active':''}" onclick="selectStudent('${id}')">
         ${escapeHtml(students[id].name||'이름없음')}
-        <span class="tab-del" onclick="event.stopPropagation(); deleteStudent('${id}')" title="이 학생 페이지 삭제">✕</span>
+        ${isAdmin ? `<span class="tab-del" onclick="event.stopPropagation(); deleteStudent('${id}')" title="이 학생 페이지 삭제">✕</span>` : ''}
       </button>`).join('');
-    html += `<button class="add-student-btn" onclick="addStudent()">＋ 새 학생 추가</button>`;
+    if (isAdmin) html += `<button class="add-student-btn" onclick="addStudent()">＋ 새 학생 추가</button>`;
     wrap.innerHTML = html;
   }
   window.selectStudent = function(id){ currentStudentId=id; activeReplyTo=null; activeEditComment=null; renderTabs(); renderBoard(); };
   window.addStudent = function(){
+    if(!isAdmin){ alert('학생 페이지 추가는 관리자만 가능합니다.'); return; }
     const name = prompt('새 학생의 이름(또는 구분명)을 입력하세요.\n예: 김ㅇㅇ, 1반 3번 등');
     if (name===null) return;
     const t = name.trim(); if(!t){ alert('이름을 입력해주세요.'); return; }
@@ -332,6 +357,7 @@
     set(r, { name:t, createdAt:Date.now(), memos:{} }).then(()=>{ currentStudentId=r.key; renderTabs(); renderBoard(); });
   };
   window.deleteStudent = function(id){
+    if(!isAdmin){ alert('학생 페이지 삭제는 관리자만 가능합니다.'); return; }
     const name = students[id]?(students[id].name||'이 학생'):'이 학생';
     if(!confirm(`'${name}' 페이지를 삭제하시겠습니까?\n이 학생의 모든 메모가 함께 삭제됩니다.`)) return;
     remove(ref(db,`students/${id}`));
@@ -349,8 +375,18 @@
   /* 보드 렌더 */
   function renderBoard(){
     captureFormInputs();
+    // 권한 배지 갱신
+    const badge = document.getElementById('roleBadge');
+    if (badge) {
+      if (isAdmin) { badge.textContent='관리자 모드'; badge.style.background='#5a8bbf'; badge.style.color='white'; }
+      else { badge.textContent='작성 모드'; badge.style.background='rgba(0,0,0,0.1)'; badge.style.color='rgba(0,0,0,0.6)'; }
+    }
     const board = document.getElementById('board');
-    if(!currentStudentId){ board.innerHTML=`<div class="empty-state"><h3>학생 페이지가 없습니다</h3><p>위의 "＋ 새 학생 추가"를 눌러 첫 학생 페이지를 만들어보세요.</p></div>`; return; }
+    if(!currentStudentId){
+      const msg = isAdmin ? '위의 "＋ 새 학생 추가"를 눌러 첫 학생 페이지를 만들어보세요.' : '아직 학생 페이지가 없습니다. 관리자에게 학생 페이지 생성을 요청해주세요.';
+      board.innerHTML=`<div class="empty-state"><h3>학생 페이지가 없습니다</h3><p>${msg}</p></div>`;
+      return;
+    }
 
     const memosObj = currentMemos();
     const memos = Object.keys(memosObj).map(id=>({id,...memosObj[id]}));
@@ -377,7 +413,12 @@
       ? renderCommentForm(memo.id, null)
       : `<button class="add-comment-btn" onclick="startReply('${memo.id}', null)">＋ 의견 달기</button>`;
 
-    return `<div class="memo-group">${renderMemo(memo)}${commentsHtml}${addArea}</div>`;
+    // 댓글이 하나라도 있으면 연결선 컨테이너로 감쌈
+    const commentsBlock = topComments.length > 0
+      ? `<div class="comments-wrap">${commentsHtml}</div>`
+      : '';
+
+    return `<div class="memo-group">${renderMemo(memo)}${commentsBlock}${addArea}</div>`;
   }
 
   function renderMemo(memo){
@@ -391,7 +432,7 @@
           </div>
           <div class="actions">
             <button class="icon-btn" onclick="editMemo('${memo.id}')" title="수정">✎</button>
-            <button class="icon-btn" onclick="deleteMemo('${memo.id}')" title="삭제">✕</button>
+            ${isAdmin ? `<button class="icon-btn" onclick="deleteMemo('${memo.id}')" title="삭제">✕</button>` : ''}
           </div>
         </div>
         <div class="cat-badge">${escapeHtml(memo.category||'기타')}</div>
@@ -421,7 +462,7 @@
           </div>
           <div class="actions">
             <button class="icon-btn" onclick="startEditComment('${memoId}','${comment.id}')" title="수정">✎</button>
-            <button class="icon-btn" onclick="deleteComment('${memoId}','${comment.id}')" title="삭제">✕</button>
+            ${isAdmin ? `<button class="icon-btn" onclick="deleteComment('${memoId}','${comment.id}')" title="삭제">✕</button>` : ''}
           </div>
         </div>
         <div class="comment-content">${escapeHtml(comment.text)}</div>
@@ -533,6 +574,7 @@
     delete formState[fid]; activeEditComment=null; renderBoard();
   };
   window.deleteComment = async function(memoId, commentId){
+    if(!isAdmin){ alert('삭제는 관리자만 가능합니다.'); return; }
     if(!confirm('이 의견을 삭제하시겠습니까? 답글도 함께 삭제됩니다.')) return;
     const memo=currentMemos()[memoId]; if(!memo) return;
     const cObj=memo.comments||{};
@@ -599,6 +641,7 @@
     closeModal();
   };
   window.deleteMemo = function(memoId){
+    if(!isAdmin){ alert('삭제는 관리자만 가능합니다.'); return; }
     if(!confirm('이 메모를 삭제하시겠습니까? 모든 의견도 함께 삭제됩니다.')) return;
     remove(ref(db,`students/${currentStudentId}/memos/${memoId}`));
   };
