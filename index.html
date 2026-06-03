@@ -342,7 +342,7 @@
     setConn(true);
     const ids = Object.keys(students);
     if (!currentStudentId || !students[currentStudentId]) {
-      currentStudentId = ids.length ? ids.sort((a,b)=>students[a].createdAt-students[b].createdAt)[0] : null;
+      currentStudentId = ids.length ? ids.sort((a,b)=>students[b].createdAt-students[a].createdAt)[0] : null;
     }
     renderTabs(); renderBoard();
   }, (e)=>{ console.error(e); setConn(false); });
@@ -352,7 +352,7 @@
   /* 학생 탭 */
   function renderTabs(){
     const wrap = document.getElementById('studentTabs');
-    const ids = Object.keys(students).sort((a,b)=>students[a].createdAt-students[b].createdAt);
+    const ids = Object.keys(students).sort((a,b)=>students[b].createdAt-students[a].createdAt);
     let html = ids.map(id=>`
       <button class="student-tab ${id===currentStudentId?'active':''}" onclick="selectStudent('${id}')">
         ${escapeHtml(students[id].name||'이름없음')}
