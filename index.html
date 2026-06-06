@@ -485,8 +485,8 @@
         ${comment.pdf?`<div class="pdf-attach"><a class="pdf-link" href="${comment.pdf}" download="${escapeHtml(comment.pdfName||'첨부.pdf')}" target="_blank" rel="noopener">📄 ${escapeHtml(comment.pdfName||'PDF 첨부파일')}</a></div>`:''}
         <button class="reply-btn" onclick="startReply('${memoId}','${comment.id}')">💬 답글 달기</button>
       </div>
-      ${replies.map(r=>renderComment(memoId, r, allComments, depth+1, memoCat)).join('')}
-      ${replyingHere ? renderCommentForm(memoId, comment.id) : ''}`;
+      ${replyingHere ? renderCommentForm(memoId, comment.id) : ''}
+      ${replies.map(r=>renderComment(memoId, r, allComments, depth+1, memoCat)).join('')}`;
   }
 
   function renderCommentForm(memoId, parentId, editingComment){
