@@ -74,7 +74,7 @@
   .comments-wrap > .comment { position: relative; }
   .comments-wrap > .comment::before { content: ''; position: absolute; left: -12px; top: 20px; width: 12px; height: 2px; background: rgba(90,139,191,0.35); }
   .comment { border-radius: 12px; padding: 12px 14px; box-shadow: 0 4px 12px rgba(70,100,140,0.13); word-break: break-word; margin-bottom: 10px; font-size: 13px; }
-  .comment.reply { margin-left: 16px; position: relative; }
+  .comment.reply { position: relative; }
   .comment.reply::before { content: ''; position: absolute; left: -16px; top: -10px; width: 12px; height: 22px; border-left: 2px dashed rgba(90,139,191,0.4); border-bottom: 2px dashed rgba(90,139,191,0.4); border-bottom-left-radius: 8px; }
   .comment-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; gap: 8px; }
   .comment-meta { font-size: 11px; color: rgba(0,0,0,0.55); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
@@ -98,7 +98,7 @@
 
   /* 댓글 작성 폼 */
   .comment-form { background: rgba(255,255,255,0.7); border-radius: 12px; padding: 12px; margin-bottom: 10px; box-shadow: 0 4px 12px rgba(70,100,140,0.15); border: 2px solid rgba(90,139,191,0.4); }
-  .comment-form.reply-form { margin-left: 16px; }
+  .comment-form.reply-form { }
   .form-row-top { display: flex; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; align-items: center; }
   .author-input { flex: 1; min-width: 100px; border: 1px solid rgba(0,0,0,0.15); background: white; padding: 5px 8px; border-radius: 6px; font-size: 12px; font-family: inherit; }
   .tag-selector { display: flex; gap: 3px; flex-wrap: wrap; }
@@ -466,9 +466,12 @@
     const replyingHere = activeReplyTo && activeReplyTo.memoId===memoId && activeReplyTo.parentId===comment.id;
     // 댓글 배경: 메모 영역색을 연하게 (배경과 구분되도록)
     const commentBg = lightenColor(categoryColor(memoCat), 0.55);
+    // 깊이에 비례한 들여쓰기 (한 단계당 20px씩 안쪽으로)
+    const indent = depth * 20;
+    const indentStyle = depth > 0 ? `margin-left:${indent}px;` : '';
 
     return `
-      <div class="comment ${replyClass}" style="background:${commentBg}">
+      <div class="comment ${replyClass}" style="background:${commentBg};${indentStyle}">
         <div class="comment-header">
           <div class="comment-meta">
             <span class="tag-badge ${tag.class}">${tag.label}</span>
@@ -485,11 +488,11 @@
         ${comment.pdf?`<div class="pdf-attach"><a class="pdf-link" href="${comment.pdf}" download="${escapeHtml(comment.pdfName||'첨부.pdf')}" target="_blank" rel="noopener">📄 ${escapeHtml(comment.pdfName||'PDF 첨부파일')}</a></div>`:''}
         <button class="reply-btn" onclick="startReply('${memoId}','${comment.id}')">💬 답글 달기</button>
       </div>
-      ${replyingHere ? renderCommentForm(memoId, comment.id) : ''}
+      ${replyingHere ? renderCommentForm(memoId, comment.id, null, depth + 1) : ''}
       ${replies.map(r=>renderComment(memoId, r, allComments, depth+1, memoCat)).join('')}`;
   }
 
-  function renderCommentForm(memoId, parentId, editingComment){
+  function renderCommentForm(memoId, parentId, editingComment, depth){
     const isEdit = !!editingComment;
     const fid = isEdit ? `editform-${memoId}-${editingComment.id}` : `form-${memoId}-${parentId||'memo'}`;
     const isReply = parentId!==null && parentId!==undefined;
@@ -498,9 +501,11 @@
     const imgPreview = saved.image ? `<div class="img-preview-wrap"><img src="${saved.image}"><button type="button" class="img-remove-btn" onclick="removeFormImage('${fid}')">✕</button></div>` : '';
     const pdfPreview = saved.pdf ? `<span class="pdf-preview-name">📄 ${escapeHtml(saved.pdfName||'첨부.pdf')} <button type="button" class="pdf-remove" onclick="removeFormPdf('${fid}')">✕</button></span>` : '';
     const tagOptions = Object.entries(TAGS).map(([k,t])=>`<button class="tag-btn ${saved.tag===k?'active':''}" data-tag="${k}" onclick="selectFormTag('${fid}','${k}')">${t.label}</button>`).join('');
+    // 답글 입력칸: 깊이에 비례한 들여쓰기 (한 단계당 20px, 단 reply-form 기본 16px과 겹치므로 깊이 1 이상부터 적용)
+    const formIndent = (depth && depth > 0) ? `margin-left:${depth * 20}px;` : '';
 
     return `
-      <div class="comment-form ${isReply?'reply-form':''}" data-form-id="${fid}">
+      <div class="comment-form ${isReply?'reply-form':''}" data-form-id="${fid}" style="${formIndent}">
         <div class="form-row-top">
           <input class="author-input" type="text" placeholder="작성자명" data-field="author" value="${escapeHtml(saved.author||'')}">
           <div class="tag-selector">${tagOptions}</div>
