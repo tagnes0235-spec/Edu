@@ -174,6 +174,8 @@
     <span class="legend-item"><span class="legend-dot" style="background:#FFDAB8"></span>봉사활동</span>
     <span class="legend-item"><span class="legend-dot" style="background:#FFF4B8"></span>교과세특</span>
     <span class="legend-item"><span class="legend-dot" style="background:#F5E1C8"></span>행동특성</span>
+    <span class="legend-item"><span class="legend-dot" style="background:#C8EDE0"></span>성적</span>
+    <span class="legend-item"><span class="legend-dot" style="background:#D9D4F0"></span>대학관련정보</span>
     <span class="legend-item"><span class="legend-dot" style="background:#FFFFFF; border:1px solid rgba(0,0,0,0.15)"></span>기타</span>
   </div>
   <div class="legend" style="margin-top:6px;">
@@ -198,6 +200,8 @@
       <option value="봉사활동">봉사활동</option>
       <option value="교과세특">교과세특</option>
       <option value="행동특성">행동특성 및 종합의견</option>
+      <option value="성적">성적</option>
+      <option value="대학관련정보">대학관련 정보</option>
       <option value="기타">기타</option>
     </select>
   </div>
@@ -229,6 +233,8 @@
         <option value="봉사활동">봉사활동</option>
         <option value="교과세특">교과세특</option>
         <option value="행동특성">행동특성 및 종합의견</option>
+        <option value="성적">성적</option>
+        <option value="대학관련정보">대학관련 정보</option>
         <option value="기타">기타</option>
       </select>
       <div style="margin-top:8px; display:flex; align-items:center; gap:8px; font-size:12px; color:#6c7a89;">
@@ -285,7 +291,7 @@
   const db = getDatabase(app);
   const studentsRef = ref(db, 'students');
 
-  const CATEGORY_COLORS = { '자율활동':'#FFD6D6','진로활동':'#C8E6F0','동아리활동':'#D4F0D4','봉사활동':'#FFDAB8','교과세특':'#FFF4B8','독서활동':'#E0D4F0','행동특성':'#F5E1C8','기타':'#FFFFFF' };
+  const CATEGORY_COLORS = { '자율활동':'#FFD6D6','진로활동':'#C8E6F0','동아리활동':'#D4F0D4','봉사활동':'#FFDAB8','교과세특':'#FFF4B8','독서활동':'#E0D4F0','행동특성':'#F5E1C8','성적':'#C8EDE0','대학관련정보':'#D9D4F0','기타':'#FFFFFF' };
   function categoryColor(cat) { return CATEGORY_COLORS[cat] || '#FFFFFF'; }
   // 영역색을 흰색과 섞어 연하게 (댓글용). ratio=0.5면 흰색 50% 섞임
   function lightenColor(hex, ratio) {
